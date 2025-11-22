@@ -24,8 +24,7 @@ like SSH access.
 
 **This will void your warranty, but you get SSH access.**
 
-Find IP: check router's DHCP list, device network settings, or use `nmap`/`arp-scan`.
-Revert: flash stock firmware from [Snapmaker's site](https://public.resource.snapmaker.com/firmware/U1/).
+Revert: flash stock firmware from [Snapmaker's site](https://wiki.snapmaker.com/en/snapmaker_u1/firmware/release_notes).
 
 ## License
 
