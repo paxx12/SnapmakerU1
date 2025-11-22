@@ -15,6 +15,7 @@ like SSH access.
 - Enable SSH: `root/snapmaker` and `lava/snapmaker`
 - Enable DHCP on USB ethernet adapters
 - Disable WiFi power saving
+- Expose camera feed in Fluidd (~1Hz)
 
 ## Pre-builts
 
