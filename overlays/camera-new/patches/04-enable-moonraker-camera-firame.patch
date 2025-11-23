@@ -4,7 +4,7 @@
  mqtt_protocol: v5
  status_interval: 2
  default_qos: 1
-+
++[timelapse]
 +[webcam case]
 +service: iframe
 +stream_url: /webcam/player
