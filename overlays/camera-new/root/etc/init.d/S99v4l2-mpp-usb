@@ -5,8 +5,11 @@
 CMD_CAPTURE=/usr/local/bin/capture-usb-mpp
 CMD_CAPTURE_ARGS="--device /dev/video18 --jpeg-sock /tmp/capture-usb-jpeg.sock --mjpeg-sock /tmp/capture-usb-mjpeg.sock --h264-sock /tmp/capture-usb-h264.sock"
 
+CMD_WEBRTC=/usr/local/bin/stream-webrtc
+CMD_WEBRTC_ARGS="--h264-sock /tmp/capture-usb-h264.sock --webrtc-sock /tmp/capture-usb-webrtc.sock"
+
 CMD_HTTP=/usr/local/bin/stream-http.py
-CMD_HTTP_ARGS="--jpeg-sock /tmp/capture-usb-jpeg.sock --mjpeg-sock /tmp/capture-usb-mjpeg.sock --h264-sock /tmp/capture-usb-h264.sock --bind 127.0.0.1 --port 8081"
+CMD_HTTP_ARGS="--jpeg-sock /tmp/capture-usb-jpeg.sock --mjpeg-sock /tmp/capture-usb-mjpeg.sock --h264-sock /tmp/capture-usb-h264.sock --webrtc-sock /tmp/capture-usb-webrtc.sock --bind 127.0.0.1 --port 8081"
 
 start() {
     if [ ! -e /dev/video18 ]; then
@@ -18,6 +21,10 @@ start() {
     start-stop-daemon -S -b -q -m -p /var/run/capture-usb-mpp.pid -x $CMD_CAPTURE -- $CMD_CAPTURE_ARGS
     echo "OK"
 
+    printf "Starting stream-webrtc: "
+    start-stop-daemon -S -b -q -m -p /var/run/stream-usb-webrtc.pid -x $CMD_WEBRTC -- $CMD_WEBRTC_ARGS
+    echo "OK"
+
     printf "Starting stream-http: "
     start-stop-daemon -S -b -q -m -p /var/run/stream-usb-http.pid -c lava -x /usr/bin/python3 -- $CMD_HTTP $CMD_HTTP_ARGS
     echo "OK"
@@ -26,6 +33,10 @@ start() {
 stop() {
     printf "Stopping stream-http: "
     start-stop-daemon -K -q -p /var/run/stream-usb-http.pid
+    echo "OK"
+
+    printf "Stopping stream-webrtc: "
+    start-stop-daemon -K -q -p /var/run/stream-usb-webrtc.pid
     echo "OK"
 
     printf "Stopping capture-usb-mpp: "

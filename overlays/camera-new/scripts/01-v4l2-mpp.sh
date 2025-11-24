@@ -13,11 +13,14 @@ TARGET_DIR="$ROOT_DIR/tmp/v4l2-mpp"
 
 if [[ ! -d "$TARGET_DIR" ]]; then
   git clone https://github.com/paxx12/v4l2-mpp.git "$TARGET_DIR" --recursive
-  git -C "$TARGET_DIR" checkout 3ab6a4b1933496f52ff883301de1b34371881538
+  git -C "$TARGET_DIR" checkout 9d3871b0eb09e2465c99b6117dd305ea42cfc121
 fi
 
 echo ">> Compiling MPP library..."
 "$TARGET_DIR/deps/compile_mpp.sh"
+
+echo ">> Compiling libdatachannel library..."
+"$TARGET_DIR/deps/compile_libdatachannel.sh"
 
 echo ">> Compiling v4l2-mpp applications..."
 make -C "$TARGET_DIR" install DESTDIR="$1"

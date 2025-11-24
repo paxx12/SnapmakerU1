@@ -5,8 +5,11 @@
 CMD_CAPTURE=/usr/local/bin/capture-mipi-mpp
 CMD_CAPTURE_ARGS="--device /dev/video11 --format nv12 --jpeg-quality 7 --jpeg-sock /tmp/capture-mipi-jpeg.sock --mjpeg-sock /tmp/capture-mipi-mjpeg.sock --h264-sock /tmp/capture-mipi-h264.sock"
 
+CMD_WEBRTC=/usr/local/bin/stream-webrtc
+CMD_WEBRTC_ARGS="--h264-sock /tmp/capture-mipi-h264.sock --webrtc-sock /tmp/capture-mipi-webrtc.sock"
+
 CMD_HTTP=/usr/local/bin/stream-http.py
-CMD_HTTP_ARGS="--jpeg-sock /tmp/capture-mipi-jpeg.sock --mjpeg-sock /tmp/capture-mipi-mjpeg.sock --h264-sock /tmp/capture-mipi-h264.sock --bind 127.0.0.1"
+CMD_HTTP_ARGS="--jpeg-sock /tmp/capture-mipi-jpeg.sock --mjpeg-sock /tmp/capture-mipi-mjpeg.sock --h264-sock /tmp/capture-mipi-h264.sock --webrtc-sock /tmp/capture-mipi-webrtc.sock --bind 127.0.0.1"
 
 CMD_SNAP_MQTT=/usr/local/bin/stream-snap-mqtt.py
 CMD_SNAP_MQTT_ARGS="--jpeg-sock /tmp/capture-mipi-jpeg.sock --publish-dir /home/lava/printer_data/camera"
@@ -19,6 +22,10 @@ start() {
 
     printf "Starting capture-mipi-mpp: "
     start-stop-daemon -S -b -q -m -p /var/run/capture-mipi-mpp.pid -x $CMD_CAPTURE -- $CMD_CAPTURE_ARGS
+    echo "OK"
+
+    printf "Starting stream-webrtc: "
+    start-stop-daemon -S -b -q -m -p /var/run/stream-mipi-webrtc.pid -x $CMD_WEBRTC -- $CMD_WEBRTC_ARGS
     echo "OK"
 
     printf "Starting stream-http: "
@@ -37,6 +44,10 @@ stop() {
 
     printf "Stopping stream-http: "
     start-stop-daemon -K -q -p /var/run/stream-mipi-http.pid
+    echo "OK"
+
+    printf "Stopping stream-webrtc: "
+    start-stop-daemon -K -q -p /var/run/stream-mipi-webrtc.pid
     echo "OK"
 
     printf "Stopping capture-mipi-mpp: "
