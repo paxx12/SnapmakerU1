@@ -21,28 +21,17 @@ like SSH access.
 - Enable DHCP on USB ethernet adapters
 - Disable WiFi power saving
 
-### Extended Camera
+### Extended Firmware Updates
 
-The extended firmware replaces the native camera with a hardware-accelerated
-stack using the Rockchip MPP/VPU.
+- Hardware-accelerated camera stack (Rockchip MPP/VPU)
+- v4l2-mpp: MIPI CSI and USB camera support with hot-plug detection
+- WebRTC low-latency streaming
+- Fluidd upgraded to v1.35.0
+- Moonraker timelapse support
+- Native camera disabled (re-enable with `/oem/.camera-native`)
+- udev hot-plug support for USB cameras and USB ethernet adapters
 
-Camera endpoints available at `http://<ip>/webcam/`:
-
-| Endpoint | Description |
-|----------|-------------|
-| `/webcam/snapshot.jpg` | Built-in: JPEG snapshot |
-| `/webcam/stream.mjpg` | Built-in: MJPEG stream (~15fps) |
-| `/webcam/stream.h264` | Built-in: H264 stream (raw) |
-| `/webcam/player` | Built-in: H264 web player |
-| `/webcam2/snapshot.jpg` | USB: JPEG snapshot |
-| `/webcam2/stream.mjpg` | USB: MJPEG stream (~15fps) |
-| `/webcam2/stream.h264` | USB: H264 stream (raw) |
-| `/webcam2/player` | USB: H264 web player |
-
-Fluidd automatically picks up the webcam configuration.
-
-If USB camera is connected it will be exposed under `/webcam2/`.
-Requires reboot.
+Access native camera at `http://<ip>/webcam/` and USB camera at `http://<ip>/webcam2/`.
 
 ## Pre-builts
 
