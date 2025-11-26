@@ -53,19 +53,13 @@ jobs:
       run: make firmware
 
     - name: Build with Basic firmware
-      run: make build PROFILE=basic OUTPUT_FILE=U1_basic_${{ env.GIT_VERSION }}.bin
+      run: make build PROFILE=basic OUTPUT_FILE=U1_basic_${{ env.GIT_VERSION }}_upgrade.bin
 
     - name: Build with Extended firmware
-      run: make build PROFILE=extended OUTPUT_FILE=U1_extended_${{ env.GIT_VERSION }}.bin
+      run: make build PROFILE=extended OUTPUT_FILE=U1_extended_${{ env.GIT_VERSION }}_upgrade.bin
 
     - name: Clear Kernel Git Repo
       run: git -C tmp/kernel/ clean -fdx
-
-    - name: Generate RELEASE details
-      run: |
-        echo "# Release ${{ env.GIT_VERSION }}" > RELEASE.tmp
-        echo "" >> RELEASE.tmp
-        cat RELEASE.md >> RELEASE.tmp
 
     - name: 'Release debian files'
       uses: ncipollo/release-action@v1
@@ -75,7 +69,7 @@ jobs:
         updateOnlyUnreleased: true
         generateReleaseNotes: true
         prerelease: true
-        bodyFile: RELEASE.tmp
+        bodyFile: RELEASE
         artifacts: "U1_*.bin"
 
     - name: Save Firmwares Cache

@@ -1,3 +1,8 @@
+## Notice
+
+> **Warning**: Installing custom firmware may void warranty and could potentially damage your device.
+> Use at your own risk.
+
 ## Install
 
 For detailed installation instructions, see the [Installation Guide](docs/install.md).
