@@ -1,66 +1,54 @@
-# Snapmaker U1 Firmware Tools
+# Custom Snapmaker U1 Firmware
 
-Tools for extracting, modifying, and rebuilding Snapmaker U1 firmware.
+This project builds custom firmware for the Snapmaker U1 3D printer,
+enabling debug features like SSH access and adding additional capabilities.
 
-## Overview
+> **Warning**: Installing custom firmware may void warranty and could potentially damage your device.
+> Use at your own risk.
 
-This project provides utilities to work with Snapmaker U1 firmware images.
-It enables creating custom firmware builds, and enabling debug features,
-like SSH access.
+## Download
 
-## Firmware Variants
+Get the latest pre-built firmware from [Releases](https://github.com/paxx12/SnapmakerU1/releases).
 
-| Variant | Description |
-|---------|-------------|
-| **Basic** | SSH, USB ethernet, native camera (~1Hz in Fluidd). Retains all base functionality and cloud features. |
-| **Extended** | Basic + new camera stack with HW-accelerated streams. Modifies some base functionality; cloud features may not work. |
+For installation instructions, see [Installation Guide](docs/install.md)
+and the [release notes](https://github.com/paxx12/SnapmakerU1/releases/latest).
 
-### Common Features
+## Features
 
-- Enable SSH: `root/snapmaker` and `lava/snapmaker`
-- Enable DHCP on USB ethernet adapters
-- Disable WiFi power saving
+### Basic Firmware
 
-### Extended Firmware Updates
+- [SSH Access](docs/ssh_access.md) - Remote shell access with `root/snapmaker` and `lava/snapmaker`
+- [USB Ethernet Adapters](docs/usb_ethernet.md) - Hot-plug support for USB ethernet devices
+- [Data Persistence](docs/data_persistence.md) - Persistent storage across firmware updates
+- Enable fluidd automatically with camera feed.
 
-- Hardware-accelerated camera stack (Rockchip MPP/VPU)
-- v4l2-mpp: MIPI CSI and USB camera support with hot-plug detection
+### Extended Firmware
+
+All basic firmware features plus:
+
+- [Camera Support](docs/camera_support.md) - Hardware-accelerated camera stack (Rockchip MPP/VPU)
+- [USB Camera Support](docs/camera_support.md) - Support for external USB cameras
 - WebRTC low-latency streaming
-- Fluidd upgraded to v1.35.0
-- Moonraker timelapse support
-- Native camera disabled (re-enable with `/oem/.camera-native`)
-- udev hot-plug support for USB cameras and USB ethernet adapters
+- Fluidd v1.35.0 with timelapse plugin
 
-Access native camera at `http://<ip>/webcam/` and USB camera at `http://<ip>/webcam2/`.
+Known issues:
 
-## Pre-builts
+- The time-lapses are not available via mobile app when using Snapmaker Cloud.
 
-1. Go to [Actions](https://github.com/paxx12/SnapmakerU1/actions/workflows/build.yaml). You need GitHub account.
-1. Download `basic-build` or `extended-build` artifact.
-1. Unpack the `.zip`
-1. Put the `.bin` file onto USB device (FAT32/exFAT format).
-1. Go to `About > Firmware version > Local Update > Select the .bin file`
-1. Connect using `ssh root@<ip>` with `snapmaker` password.
+## Documentation
 
-**This will void your warranty, but you get SSH access.**
+- [Installation Guide](docs/install.md) - How to install custom firmware
+- [Building from Source](docs/development.md) - Development guide for building custom firmware
+- [SSH Access](docs/ssh_access.md) - How to access the printer via SSH
+- [USB Ethernet](docs/usb_ethernet.md) - USB ethernet adapter configuration
+- [Camera Support](docs/camera_support.md) - Camera features and WebRTC streaming
+- [Data Persistence](docs/data_persistence.md) - Persistent storage configuration
 
-Revert: flash stock firmware from [Snapmaker's site](https://wiki.snapmaker.com/en/snapmaker_u1/firmware/release_notes).
+## Dependent projects
 
-## Persistence of data
-
-By default the Snapmaker firmware wipes all user changes on every reboot.
-This makes it bulletproof.
-
-If for some reason you want to persist system-level changes to `/etc` (e.g., SSH passwords
-or authorized keys), create the file with `touch /oem/.debug`.
-Remove it with `rm /oem/.debug` and reboot to restore a pristine system.
-
-The `/home/lava/printer_data` directory persists with and without `/oem/.debug`.
+- [v4l2-mpp](https://github.com/paxx12/v4l2-mpp) - Custom project built to provide
+  Hardware-accelerated camera stack
 
 ## License
 
 See individual tool directories for licensing information.
-
-## Disclaimer
-
-This project is for educational and development purposes. Modifying firmware may void warranties and could potentially damage your device. Use at your own risk.

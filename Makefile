@@ -4,23 +4,26 @@ all: tools
 
 # ================= Build Tools =================
 
-DEBUG_FIRMWARE_FILE := firmware/firmware_debug.bin
-BASIC_FIRMWARE_FILE := firmware/firmware_basic.bin
-EXTENDED_FIRMWARE_FILE := firmware/firmware_extended.bin
+OUTPUT_FILE := firmware/firmware.bin
 
-$(DEBUG_FIRMWARE_FILE): firmware/$(FIRMWARE_FILE) tools
-	./scripts/enable_debug_misc.sh $< tmp/debug $@
+ifeq (basic,$(PROFILE))
+OVERLAYS += basic kernel-modules camera-native
+else ifeq (extended,$(PROFILE))
+OVERLAYS += basic kernel-modules camera-new fluidd-upgrade
+endif
 
-$(BASIC_FIRMWARE_FILE): firmware/$(FIRMWARE_FILE) tools
-	./scripts/create_firmware.sh $< tmp/basic $@ overlays/basic overlays/camera-native
+$(OUTPUT_FILE): firmware/$(FIRMWARE_FILE) tools
+ifeq (,$(OVERLAYS))
+	@echo "No overlays specified. Set PROFILE variable to 'basic' or 'extended'."
+	@exit 1
+endif
+	./scripts/create_firmware.sh $< tmp/extended $@ $(addprefix overlays/,$(OVERLAYS))
 
-$(EXTENDED_FIRMWARE_FILE): firmware/$(FIRMWARE_FILE) tools
-	./scripts/create_firmware.sh $< tmp/extended $@ overlays/basic overlays/camera-new overlays/fluidd-upgrade
+.PHONY: build
+build: $(OUTPUT_FILE)
 
-basic_firmware: $(BASIC_FIRMWARE_FILE)
-extended_firmware: $(EXTENDED_FIRMWARE_FILE)
-debug_firmware: $(DEBUG_FIRMWARE_FILE)
-extract_firmware: firmware/$(FIRMWARE_FILE) tools
+.PHONY: extract
+extract: firmware/$(FIRMWARE_FILE) tools
 	./scripts/extract_squashfs.sh $< tmp/extracted
 
 # ================= Tools =================

@@ -1,0 +1,94 @@
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  custom-firmware-build:
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      pull-requests: write
+      contents: read
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        submodules: recursive
+
+    - name: Load values vars.mk
+      run: cat vars.mk >> "$GITHUB_ENV"
+
+    - name: Restore Firmwares Cache
+      id: cache-firmwares
+      uses: actions/cache/restore@v4
+      with:
+        path: firmware/
+        key: firmwares-${{ runner.os }}-${{ runner.arch }}-${{ env.FIRMWARE_VERSION }}
+
+    - name: Restore Kernel Cache
+      id: cache-kernel
+      uses: actions/cache/restore@v4
+      with:
+        path: tmp/kernel/
+        key: kernels-${{ runner.os }}-${{ runner.arch }}-${{ env.KERNEL_SHA }}
+
+    - name: Install build dependencies
+      run: |
+        sudo apt-get update -y &&
+        sudo apt-get install -y build-essential cmake \
+          gcc-aarch64-linux-gnu pkg-config squashfs-tools git-core \
+          bc libssl-dev
+
+    - name: Set GIT_VERSION
+      shell: bash
+      run: |
+        nextVer=$(./scripts/next_version.sh paxx12 test-pr-${{ github.event.pull_request.number }})
+        echo "GIT_VERSION=${nextVer//v/}" | tee -a $GITHUB_ENV
+
+    - name: Download firmware
+      run: make firmware
+
+    - name: Build with Basic firmware
+      run: make build PROFILE=basic OUTPUT_FILE=U1_basic_${{ env.GIT_VERSION }}.bin
+
+    - name: Build with Extended firmware
+      run: make build PROFILE=extended OUTPUT_FILE=U1_extended_${{ env.GIT_VERSION }}.bin
+
+    - name: Clear Kernel Git Repo
+      run: git -C tmp/kernel/ clean -fdx
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: basic-build
+        path: U1_basic_*.bin
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: extended-build
+        path: U1_extended_*.bin
+
+    - name: Comment PR with artifact links
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const body = `✅ Build artifacts ready: [Download builds](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+          await github.rest.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+            body: body
+          });
+
+    - name: Save Firmwares Cache
+      if: steps.cache-firmwares.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: firmware/
+        key: firmwares-${{ runner.os }}-${{ runner.arch }}-${{ env.FIRMWARE_VERSION }}
+
+    - name: Save Kernel Cache
+      if: steps.cache-kernel.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: tmp/kernel/
+        key: kernels-${{ runner.os }}-${{ runner.arch }}-${{ env.KERNEL_SHA }}

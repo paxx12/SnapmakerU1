@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [[ $# -ne 1 ]]; then
+  echo "Usage: $0 <rootfs-dir>"
+  exit 1
+fi
+
+ROOTFS_DIR="$(realpath "$1")"
+
+if [[ -n "$GIT_VERSION" ]]; then
+  ABBRV=$(git describe --abbrev --always)
+
+  # 0.9.0-paxx12-1-gabcdef0
+  echo -n "${GIT_VERSION#v}-${ABBRV}" > "$ROOTFS_DIR/etc/CUSTOM_VERSION"
+fi
