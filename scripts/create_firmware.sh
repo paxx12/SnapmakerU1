@@ -5,6 +5,11 @@ if [[ $# -lt 3 ]]; then
   exit 1
 fi
 
+if [[ $(id -u) -ne 0 ]]; then
+  echo "Error: This script must be run as root (sudo) - squashfs operations require root privileges"
+  exit 1
+fi
+
 set -eo pipefail
 
 IN_FIRMWARE="$(realpath "$1")"

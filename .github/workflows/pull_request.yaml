@@ -49,13 +49,13 @@ jobs:
       run: make firmware
 
     - name: Build with Basic firmware
-      run: make build PROFILE=basic OUTPUT_FILE=U1_basic_${{ env.GIT_VERSION }}_upgrade.bin
+      run: sudo make build PROFILE=basic OUTPUT_FILE=U1_basic_${{ env.GIT_VERSION }}_upgrade.bin
 
     - name: Build with Extended firmware
-      run: make build PROFILE=extended OUTPUT_FILE=U1_extended_${{ env.GIT_VERSION }}_upgrade.bin
+      run: sudo make build PROFILE=extended OUTPUT_FILE=U1_extended_${{ env.GIT_VERSION }}_upgrade.bin
 
     - name: Clear Kernel Git Repo
-      run: git -C tmp/kernel/ clean -fdx
+      run: sudo git -C tmp/kernel/ clean -fdx
 
     - uses: actions/upload-artifact@v4
       with:

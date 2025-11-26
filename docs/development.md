@@ -27,14 +27,16 @@ make firmware
 Build basic firmware:
 
 ```bash
-make build PROFILE=basic OUTPUT_FILE=firmware/U1_basic.bin
+sudo make build PROFILE=basic OUTPUT_FILE=firmware/U1_basic.bin
 ```
 
 Build extended firmware:
 
 ```bash
-make build PROFILE=extended OUTPUT_FILE=firmware/U1_extended.bin
+sudo make build PROFILE=extended OUTPUT_FILE=firmware/U1_extended.bin
 ```
+
+**Note:** The build process requires root privileges due to squashfs root filesystem operations.
 
 ## Profiles
 
