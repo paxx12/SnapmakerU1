@@ -27,6 +27,11 @@ Access USB camera at:
 http://<printer-ip>/webcam2/
 ```
 
+You need to add USB camera in Fluidd. Use the following
+settings for the best performance:
+
+<img src="images/usb_cam.png" alt="Fluidd USB camera" width="300"/>
+
 ## Enable Snapmaker's Camera Stack
 
 Only one Camera Stack can be operational at the given moment.
