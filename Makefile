@@ -44,7 +44,7 @@ tools/%: FORCE
 firmware: firmware/$(FIRMWARE_FILE)
 
 firmware/$(FIRMWARE_FILE):
-	@mkdir -ap firmware
+	@mkdir -p firmware
 	wget -O $@.tmp "https://public.resource.snapmaker.com/firmware/U1/$(FIRMWARE_FILE)"
 	echo "$(FIRMWARE_SHA256)  $@.tmp" | sha256sum -c --quiet
 	mv $@.tmp $@

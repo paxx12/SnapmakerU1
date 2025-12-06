@@ -43,7 +43,8 @@ Known issues:
 - [SSH Access](docs/ssh_access.md) - How to access the printer via SSH
 - [USB Ethernet](docs/usb_ethernet.md) - USB ethernet adapter configuration
 - [Camera Support](docs/camera_support.md) - Camera features and WebRTC streaming
-- [Klipper and Moonraker Custom Includes](docs/klipper_includes.md) - Add custom configuration files via Fluidd
+- [Mainsail Web UI](docs/mainsail.md) - Mainsail web interface (experimental)
+- [Klipper and Moonraker Custom Includes](docs/klipper_includes.md) - Add custom configuration files
 - [Data Persistence](docs/data_persistence.md) - Persistent storage configuration
 
 ## Dependent projects
