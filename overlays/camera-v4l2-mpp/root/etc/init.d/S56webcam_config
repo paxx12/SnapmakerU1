@@ -1,0 +1,69 @@
+#!/bin/sh
+#
+# Create default webcam configuration for Moonraker
+# This runs after S55include_keeps which creates the config directories
+#
+
+start() {
+    # Create default camera config if it doesn't exist
+    if [ ! -f /home/lava/printer_data/config/moonraker/webcam.cfg ]; then
+        cat <<EOF > /home/lava/printer_data/config/moonraker/webcam.cfg
+# Webcam Configuration
+# ====================
+# This file persists across firmware updates.
+# See docs/camera_support.md for configuration options.
+#
+# Available services:
+#   webrtc-camerastreamer - Low-latency WebRTC (recommended)
+#   mjpegstreamer-adaptive - MJPEG with adaptive framerate
+#   mjpegstreamer - Basic MJPEG streaming
+
+[webcam case]
+service: webrtc-camerastreamer
+stream_url: /webcam/webrtc
+snapshot_url: /webcam/snapshot.jpg
+aspect_ratio: 16:9
+EOF
+        chown lava:lava /home/lava/printer_data/config/moonraker/webcam.cfg
+    fi
+
+    # Create USB camera template if it doesn't exist
+    if [ ! -f /home/lava/printer_data/config/moonraker/usb_camera.cfg.disabled ]; then
+        cat <<EOF > /home/lava/printer_data/config/moonraker/usb_camera.cfg.disabled
+# USB Camera Configuration
+# ========================
+# To enable: rename this file to usb_camera.cfg
+# Then restart Moonraker: /etc/init.d/S61moonraker restart
+
+[webcam usb]
+service: webrtc-camerastreamer
+stream_url: /webcam2/webrtc
+snapshot_url: /webcam2/snapshot.jpg
+aspect_ratio: 16:9
+EOF
+        chown lava:lava /home/lava/printer_data/config/moonraker/usb_camera.cfg.disabled
+    fi
+}
+
+stop() {
+    true
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    restart|reload)
+        stop
+        start
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+        ;;
+esac
+
+exit 0

@@ -1,0 +1,85 @@
+# Mainsail nginx configuration
+# Based on stock fluidd config with mainsail-specific adjustments
+
+upstream apiserver {
+    ip_hash;
+    server 127.0.0.1:7125;
+}
+
+server {
+    listen 80 default_server;
+
+    access_log /var/log/nginx/mainsail-access.log;
+    error_log /var/log/nginx/mainsail-error.log;
+
+    # Disable gzip for better compatibility
+    gzip off;
+
+    # Maximum upload size (for gcode files)
+    client_max_body_size 0;
+
+    # Serve Mainsail static files
+    root /home/lava/mainsail;
+
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location = /index.html {
+        add_header Cache-Control "no-store, no-cache, must-revalidate";
+    }
+
+    # Camera location with CORS headers for Mainsail webcam access
+    location /camera/ {
+        alias /tmp/camera/;
+    }
+
+    # Webcam proxy with CORS headers
+    location /webcam/ {
+        postpone_output 0;
+        proxy_buffering off;
+        proxy_ignore_headers X-Accel-Buffering;
+        proxy_pass http://127.0.0.1:8080/;
+        # CORS headers for Mainsail webcam access
+        add_header Access-Control-Allow-Origin *;
+        add_header Access-Control-Allow-Methods "GET, OPTIONS";
+        add_header Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept";
+    }
+
+    # Second webcam (USB camera)
+    location /webcam2/ {
+        postpone_output 0;
+        proxy_buffering off;
+        proxy_ignore_headers X-Accel-Buffering;
+        proxy_pass http://127.0.0.1:8081/;
+        # CORS headers for Mainsail webcam access
+        add_header Access-Control-Allow-Origin *;
+        add_header Access-Control-Allow-Methods "GET, OPTIONS";
+        add_header Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept";
+    }
+
+    # Moonraker WebSocket
+    location /websocket {
+        proxy_pass http://apiserver/websocket;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_read_timeout 86400;
+    }
+
+    # Moonraker API
+    location ~ ^/(printer|api|access|machine|server)/ {
+        proxy_pass http://apiserver$request_uri;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Scheme $scheme;
+    }
+}
