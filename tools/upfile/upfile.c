@@ -28,15 +28,16 @@ typedef struct __attribute__((packed)) {
 } UPFILE_ENTRY;
 
 #define UPFILE_MAGIC 0x4b4d4e53 // "SNMK"
+#define UPFILE_FILE_COUNT 4
 
-static const char *FILE_TYPE_STRINGS[] = {
+static const char *FILE_TYPE_STRINGS[UPFILE_FILE_COUNT] = {
   "SOC_FW",
   "MCU1_FW",
   "MCU2_FW",
   "MCU_DESC"
 };
 
-static const char *FILE_NAMES[] = {
+static const char *FILE_NAMES[UPFILE_FILE_COUNT] = {
   "update.img",
   "at32f403a.bin",
   "at32f415.bin",
@@ -87,8 +88,8 @@ static int info(const char *infile, const char *outdir, void (*file_fnc)(const c
   }
 
   uint16_t files = be_to_host16(header.files);
-  if (files > 1024) { /* sanity guard to avoid runaway loops on corrupt files */
-    fprintf(stderr, "Unreasonable file count: %u\n", files);
+  if (files >= UPFILE_FILE_COUNT) {
+    fprintf(stderr, "Unknown files found: %u\n", files);
     goto error;
   }
 
@@ -141,8 +142,7 @@ static int info(const char *infile, const char *outdir, void (*file_fnc)(const c
     }
 
     if (file_fnc) {
-      const char *filename = (i < ARRAY_SIZE(FILE_NAMES)) ? FILE_NAMES[i] : "unknown";
-      file_fnc(filename, data, be_to_host32(entry.size));
+      file_fnc(FILE_NAMES[i], data, be_to_host32(entry.size));
     }
     free(data);
   }
@@ -266,7 +266,7 @@ static int pack(const char *outfile, const char *indir) {
   UPFILE_HEADER header = {0};
   header.magic = UPFILE_MAGIC;
   header.magic_ver = host_to_be16(1);
-  header.files = host_to_be16(ARRAY_SIZE(FILE_NAMES));
+  header.files = host_to_be16(UPFILE_FILE_COUNT);
   if (read_string_from_file("UPFILE_VERSION", header.version, sizeof(header.version)) != 0) {
     fprintf(stderr, "Error: UPFILE_VERSION not found\n");
     goto error;
@@ -284,11 +284,11 @@ static int pack(const char *outfile, const char *indir) {
     goto error;
   }
 
-  printf("Packing UPFILE with %zu files\n", ARRAY_SIZE(FILE_NAMES));
+  printf("Packing UPFILE with %zu files\n", UPFILE_FILE_COUNT);
 
-  uint64_t data_offset = sizeof(UPFILE_HEADER) + ARRAY_SIZE(FILE_NAMES) * sizeof(UPFILE_ENTRY);
+  uint64_t data_offset = sizeof(UPFILE_HEADER) + UPFILE_FILE_COUNT * sizeof(UPFILE_ENTRY);
 
-  for (int i = 0; i < ARRAY_SIZE(FILE_NAMES); i++) {
+  for (int i = 0; i < UPFILE_FILE_COUNT; i++) {
     int ret = pack_file(outfp, i, i, FILE_NAMES[i], &data_offset);
     if (ret != 0) {
       goto error;
