@@ -20,15 +20,48 @@ CMD_HTTP_ARGS="--jpeg-sock /tmp/capture-mipi-jpeg.sock --mjpeg-sock /tmp/capture
 CMD_SNAP_MQTT=/usr/local/bin/stream-snap-mqtt.py
 CMD_SNAP_MQTT_ARGS="--jpeg-sock /tmp/capture-mipi-jpeg.sock --publish-dir /home/lava/printer_data/camera"
 
+CAPTURE_PID=/var/run/capture-mipi-mpp.pid
+MONITOR_PID=/var/run/capture-mipi-mpp-monitor.pid
+
+start_capture() {
+    printf "Starting capture-mipi-mpp: "
+    start-stop-daemon -S -b -q -m -p "$CAPTURE_PID" -x $CMD_CAPTURE -- $CMD_CAPTURE_ARGS
+    echo "OK"
+}
+
+start_monitor() {
+    # Ensure only one monitor loop exists
+    if pid_mon="$(cat "$MONITOR_PID" 2>/dev/null)" && kill -0 "$pid_mon" 2>/dev/null; then
+        return
+    fi
+
+    (
+        while true; do
+            if ! pid="$(cat "$CAPTURE_PID" 2>/dev/null)" || ! kill -0 "$pid" 2>/dev/null; then
+                echo "capture-mipi-mpp not running, restarting..."
+                start_capture
+            fi
+            sleep 5
+        done
+    ) &
+    echo $! > "$MONITOR_PID"
+}
+
+stop_monitor() {
+    if [ -f "$MONITOR_PID" ]; then
+        kill "$(cat "$MONITOR_PID")" 2>/dev/null
+        rm -f "$MONITOR_PID"
+    fi
+}
+
 start() {
     if [ ! -e /dev/video11 ]; then
         echo "MIPI camera device /dev/video11 not found, not starting."
         return
     fi
 
-    printf "Starting capture-mipi-mpp: "
-    start-stop-daemon -S -b -q -m -p /var/run/capture-mipi-mpp.pid -x $CMD_CAPTURE -- $CMD_CAPTURE_ARGS
-    echo "OK"
+    start_capture
+    start_monitor
 
     printf "Starting stream-webrtc: "
     start-stop-daemon -S -b -q -m -p /var/run/stream-mipi-webrtc.pid -c lava -x $CMD_WEBRTC -- $CMD_WEBRTC_ARGS
@@ -44,6 +77,8 @@ start() {
 }
 
 stop() {
+    stop_monitor
+
     printf "Stopping stream-snap-mqtt: "
     start-stop-daemon -K -q -p /var/run/stream-mipi-snap-mqtt.pid
     echo "OK"
@@ -57,7 +92,7 @@ stop() {
     echo "OK"
 
     printf "Stopping capture-mipi-mpp: "
-    start-stop-daemon -K -q -p /var/run/capture-mipi-mpp.pid
+    start-stop-daemon -K -q -p "$CAPTURE_PID"
     echo "OK"
 }
 

@@ -11,15 +11,47 @@ CMD_WEBRTC_ARGS="--h264-sock /tmp/capture-usb-h264.sock --webrtc-sock /tmp/captu
 CMD_HTTP=/usr/local/bin/stream-http.py
 CMD_HTTP_ARGS="--jpeg-sock /tmp/capture-usb-jpeg.sock --mjpeg-sock /tmp/capture-usb-mjpeg.sock --h264-sock /tmp/capture-usb-h264.sock --webrtc-sock /tmp/capture-usb-webrtc.sock --bind 127.0.0.1 --port 8081"
 
+CAPTURE_PID=/var/run/capture-usb-mpp.pid
+MONITOR_PID=/var/run/capture-usb-mpp-monitor.pid
+
+start_capture() {
+    printf "Starting capture-usb-mpp: "
+    start-stop-daemon -S -b -q -m -p "$CAPTURE_PID" -x $CMD_CAPTURE -- $CMD_CAPTURE_ARGS
+    echo "OK"
+}
+
+start_monitor() {
+    if pid_mon="$(cat "$MONITOR_PID" 2>/dev/null)" && kill -0 "$pid_mon" 2>/dev/null; then
+        return
+    fi
+
+    (
+        while true; do
+            if ! pid="$(cat "$CAPTURE_PID" 2>/dev/null)" || ! kill -0 "$pid" 2>/dev/null; then
+                echo "capture-usb-mpp not running, restarting..."
+                start_capture
+            fi
+            sleep 5
+        done
+    ) &
+    echo $! > "$MONITOR_PID"
+}
+
+stop_monitor() {
+    if [ -f "$MONITOR_PID" ]; then
+        kill "$(cat "$MONITOR_PID")" 2>/dev/null
+        rm -f "$MONITOR_PID"
+    fi
+}
+
 start() {
     if [ ! -e /dev/video18 ]; then
         echo "USB camera device /dev/video18 not found, not starting."
         return
     fi
 
-    printf "Starting capture-usb-mpp: "
-    start-stop-daemon -S -b -q -m -p /var/run/capture-usb-mpp.pid -x $CMD_CAPTURE -- $CMD_CAPTURE_ARGS
-    echo "OK"
+    start_capture
+    start_monitor
 
     printf "Starting stream-webrtc: "
     start-stop-daemon -S -b -q -m -p /var/run/stream-usb-webrtc.pid -c lava -x $CMD_WEBRTC -- $CMD_WEBRTC_ARGS
@@ -31,6 +63,8 @@ start() {
 }
 
 stop() {
+    stop_monitor
+
     printf "Stopping stream-http: "
     start-stop-daemon -K -q -p /var/run/stream-usb-http.pid
     echo "OK"
@@ -40,7 +74,7 @@ stop() {
     echo "OK"
 
     printf "Stopping capture-usb-mpp: "
-    start-stop-daemon -K -q -p /var/run/capture-usb-mpp.pid
+    start-stop-daemon -K -q -p "$CAPTURE_PID"
     echo "OK"
 }
 
