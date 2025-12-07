@@ -57,6 +57,12 @@ If you find this project useful and would like to support its development, you c
 
 [![Buy Me A Coffee](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/paxx12)
 
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for information about contributing to this project.
+
 ## License
 
-See individual tool directories for licensing information.
+The license for this project is currently undefined. See [LICENSE](LICENSE) for details.
+
+For licensing information about individual tools and dependencies, see their respective directories.
