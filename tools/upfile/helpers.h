@@ -195,7 +195,7 @@ static void print_hex(const uint8_t *data, size_t size) {
 }
 
 static size_t trim_right(char *str, size_t max_len) {
-  size_t len = strnlen(str, max_len);
+  size_t len = strnlen(str, max_len + 1);
   while (len > 0 && (str[len - 1] == '\n' || str[len - 1] == '\r' || str[len - 1] == ' ' || str[len - 1] == '\t')) {
     str[len - 1] = '\0';
     len--;
