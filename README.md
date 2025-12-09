@@ -29,6 +29,7 @@ All basic firmware features plus:
 - [Camera Support](docs/camera_support.md) - Hardware-accelerated camera stack (Rockchip MPP/VPU)
 - [USB Camera Support](docs/camera_support.md) - Support for external USB cameras
 - [Klipper and Moonraker Custom Includes](docs/klipper_includes.md) - Add custom configuration files via Fluidd
+- Moonraker Apprise notifications - Send print notifications to Discord, Telegram, Slack, and 90+ services
 - WebRTC low-latency streaming
 - Fluidd v1.35.0 with timelapse plugin
 
