@@ -126,6 +126,285 @@ def ndef_parse(data_buf):
         logging.exception("NDEF parsing failed: %s", str(e))
         return NDEF_ERR, []
 
+def cbor_decode_additional_info(data, offset, additional_info):
+    if additional_info < 24:
+        return additional_info, offset
+    elif additional_info == 24:
+        value = data[offset]
+        return value, offset + 1
+    elif additional_info == 25:
+        value = (data[offset] << 8) | data[offset + 1]
+        return value, offset + 2
+    elif additional_info == 26:
+        value = (data[offset] << 24) | (data[offset + 1] << 16) | (data[offset + 2] << 8) | data[offset + 3]
+        return value, offset + 4
+    elif additional_info == 27:
+        high_word = (data[offset] << 24) | (data[offset + 1] << 16) | (data[offset + 2] << 8) | data[offset + 3]
+        low_word = (data[offset + 4] << 24) | (data[offset + 5] << 16) | (data[offset + 6] << 8) | data[offset + 7]
+        value = (high_word << 32) | low_word
+        return value, offset + 8
+    elif additional_info == 31:
+        return -1, offset
+    else:
+        raise ValueError("Invalid CBOR additional info: {}".format(additional_info))
+
+def cbor_decode_value(data, offset):
+    if offset >= len(data):
+        return None, offset
+
+    initial_byte = data[offset]
+    major_type = (initial_byte >> 5) & 0x07
+    additional_info = initial_byte & 0x1F
+    offset += 1
+
+    if major_type == 0:
+        value, offset = cbor_decode_additional_info(data, offset, additional_info)
+        return value, offset
+    elif major_type == 1:
+        value, offset = cbor_decode_additional_info(data, offset, additional_info)
+        return -1 - value, offset
+    elif major_type == 2:
+        value, offset = cbor_decode_additional_info(data, offset, additional_info)
+        if value == -1:
+            return b'', offset
+        return bytes(data[offset:offset + value]), offset + value
+    elif major_type == 3:
+        value, offset = cbor_decode_additional_info(data, offset, additional_info)
+        if value == -1:
+            return '', offset
+        return data[offset:offset + value].decode('utf-8'), offset + value
+    elif major_type == 4:
+        value, offset = cbor_decode_additional_info(data, offset, additional_info)
+        result = []
+        if value == -1:
+            while offset < len(data) and data[offset] != 0xFF:
+                item, offset = cbor_decode_value(data, offset)
+                if item is not None:
+                    result.append(item)
+            if offset < len(data) and data[offset] == 0xFF:
+                offset += 1
+        else:
+            for _ in range(value):
+                item, offset = cbor_decode_value(data, offset)
+                if item is not None:
+                    result.append(item)
+        return result, offset
+    elif major_type == 5:
+        value, offset = cbor_decode_additional_info(data, offset, additional_info)
+        result = {}
+        if value == -1:
+            while offset < len(data) and data[offset] != 0xFF:
+                key, offset = cbor_decode_value(data, offset)
+                val, offset = cbor_decode_value(data, offset)
+                if key is not None and val is not None:
+                    result[key] = val
+            if offset < len(data) and data[offset] == 0xFF:
+                offset += 1
+        else:
+            for _ in range(value):
+                key, offset = cbor_decode_value(data, offset)
+                val, offset = cbor_decode_value(data, offset)
+                if key is not None and val is not None:
+                    result[key] = val
+        return result, offset
+    elif major_type == 7:
+        if additional_info == 20:
+            return False, offset
+        elif additional_info == 21:
+            return True, offset
+        elif additional_info == 22:
+            return None, offset
+        elif additional_info == 23:
+            return None, offset
+        elif additional_info == 24:
+            value, offset = cbor_decode_additional_info(data, offset, additional_info)
+            if value < 32:
+                raise ValueError("Invalid CBOR simple value: {}".format(value))
+            return value, offset
+        elif additional_info == 25:
+            value, offset = cbor_decode_additional_info(data, offset, additional_info)
+            import struct
+            sign = (value & 0x8000) >> 15
+            exponent = (value & 0x7C00) >> 10
+            fraction = value & 0x03FF
+            if exponent == 0:
+                result = ((-1) ** sign) * (2 ** -14) * (fraction / 1024.0)
+            elif exponent == 0x1F:
+                result = float('nan') if fraction else (float('-inf') if sign else float('inf'))
+            else:
+                result = ((-1) ** sign) * (2 ** (exponent - 15)) * (1 + fraction / 1024.0)
+            return result, offset
+        elif additional_info == 26:
+            value, offset = cbor_decode_additional_info(data, offset, additional_info)
+            import struct
+            return struct.unpack('>f', value.to_bytes(4, 'big'))[0], offset
+        elif additional_info == 27:
+            value, offset = cbor_decode_additional_info(data, offset, additional_info)
+            import struct
+            return struct.unpack('>d', value.to_bytes(8, 'big'))[0], offset
+        elif additional_info == 31:
+            return None, offset
+        elif additional_info < 20:
+            return additional_info, offset
+
+    raise ValueError("Unsupported CBOR major type: {}".format(major_type))
+
+def openprinttag_decode_main_region(payload):
+    meta, meta_end = cbor_decode_value(payload, 0)
+    if not isinstance(meta, dict):
+        raise ValueError('Invalid CBOR data: expected dict')
+
+    main_region_offset = meta.get(0, meta_end)
+    aux_region_offset = meta.get(2, len(payload))
+    main_region_size = meta.get(1, aux_region_offset - main_region_offset)
+    #aux_region_size = meta.get(3, len(payload) - aux_region_offset)
+
+    main_payload = payload[main_region_offset:main_region_offset + main_region_size]
+    main_data, _ = cbor_decode_value(main_payload, 0)
+    return main_data
+
+OPENPRINTTAG_MATERIAL_TYPE_MAPPING = {
+    0: 'PLA',
+    1: 'PETG',
+    2: 'TPU',
+    3: 'ABS',
+    4: 'ASA',
+    5: 'PC',
+    6: 'PCTG',
+    7: 'PP',
+    8: 'PA6',
+    9: 'PA11',
+    10: 'PA12',
+    11: 'PA66',
+    12: 'CPE',
+    13: 'TPE',
+    14: 'HIPS',
+    15: 'PHA',
+    16: 'PET',
+    17: 'PEI',
+    18: 'PBT',
+    19: 'PVB',
+    20: 'PVA',
+    21: 'PEKK',
+    22: 'PEEK',
+    23: 'BVOH',
+    24: 'TPC',
+    25: 'PPS',
+    26: 'PPSU',
+    27: 'PVC',
+    28: 'PEBA',
+    29: 'PVDF',
+    30: 'PPA',
+    31: 'PCL',
+    32: 'PES',
+    33: 'PMMA',
+    34: 'POM',
+    35: 'PPE',
+    36: 'PS',
+    37: 'PSU',
+    38: 'TPI',
+    39: 'SBS',
+    40: 'OBC',
+}
+
+def openprinttag_parse_payload(payload):
+    if None == payload or not isinstance(payload, (bytes, bytearray)):
+        logging.error("OpenPrintTag payload parsing failed: Invalid payload parameter")
+        return filament_protocol.FILAMENT_PROTO_PARAMETER_ERR, None
+
+    try:
+        main_data = openprinttag_decode_main_region(payload)
+        if not isinstance(main_data, dict):
+            logging.error(f"OpenPrintTag payload parsing failed: Main data is not a dict, got {type(main_data)}")
+            return filament_protocol.FILAMENT_PROTO_ERR, None
+
+        logging.info(f"OpenPrintTag main data: {main_data}")
+
+        info = copy.copy(filament_protocol.FILAMENT_INFO_STRUCT)
+        info['VERSION'] = 1
+        info['VENDOR'] = main_data.get(11, 'NONE')
+        info['MANUFACTURER'] = main_data.get(11, 'NONE')
+
+        material_type_id = main_data.get(9)
+        if material_type_id is not None:
+            info['MAIN_TYPE'] = OPENPRINTTAG_MATERIAL_TYPE_MAPPING.get(material_type_id, 'Reserved')
+        else:
+            info['MAIN_TYPE'] = 'Reserved'
+
+        info['SUB_TYPE'] = 'Basic'
+        tags = main_data.get(28, [])
+        if isinstance(tags, list):
+            if 16 in tags:
+                info['SUB_TYPE'] = 'Matte'
+        info['TRAY'] = 0
+
+        colors = []
+        for color_key in [19, 20, 21, 22]:
+            color_data = main_data.get(color_key)
+            if color_data and len(color_data) >= 3:
+                rgb = (color_data[0] << 16) | (color_data[1] << 8) | color_data[2]
+                alpha = color_data[3] if len(color_data) >= 4 else 0xFF
+                colors.append((rgb, alpha))
+
+        if not colors:
+            colors.append((0xFFFFFF, 0xFF))
+
+        info['COLOR_NUMS'] = len(colors)
+        info['ALPHA'] = colors[0][1]
+        info['RGB_1'] = colors[0][0] if len(colors) > 0 else 0
+        info['RGB_2'] = colors[1][0] if len(colors) > 1 else 0
+        info['RGB_3'] = colors[2][0] if len(colors) > 2 else 0
+        info['RGB_4'] = colors[3][0] if len(colors) > 3 else 0
+        info['RGB_5'] = 0
+        info['ARGB_COLOR'] = info['ALPHA'] << 24 | info['RGB_1']
+
+        diameter = main_data.get(16, 0)
+        info['DIAMETER'] = int(diameter * 100) if diameter else 0
+
+        weight = main_data.get(18, 0)
+        info['WEIGHT'] = int(weight) if weight else 0
+
+        info['LENGTH'] = 0
+        info['DRYING_TEMP'] = 0
+        info['DRYING_TIME'] = 0
+
+        nozzle_temp = main_data.get(34, 0)
+        if nozzle_temp:
+            info['HOTEND_MIN_TEMP'] = int(nozzle_temp)
+            info['HOTEND_MAX_TEMP'] = int(nozzle_temp)
+        else:
+            info['HOTEND_MIN_TEMP'] = 0
+            info['HOTEND_MAX_TEMP'] = 0
+
+        bed_temp = main_data.get(35, 0)
+        info['BED_TEMP'] = int(bed_temp) if bed_temp else 0
+        info['BED_TYPE'] = 0
+        info['FIRST_LAYER_TEMP'] = info['HOTEND_MIN_TEMP']
+        info['OTHER_LAYER_TEMP'] = info['HOTEND_MIN_TEMP']
+
+        gtin = main_data.get(4, 0)
+        info['SKU'] = int(gtin) if gtin else 0
+
+        manufactured_date = main_data.get(14)
+        if manufactured_date:
+            import datetime
+            try:
+                dt = datetime.datetime.fromtimestamp(manufactured_date, tz=datetime.timezone.utc)
+                info['MF_DATE'] = dt.strftime('%Y%m%d')
+            except (ValueError, OSError):
+                info['MF_DATE'] = '19700101'
+        else:
+            info['MF_DATE'] = '19700101'
+        info['RSA_KEY_VERSION'] = 0
+        info['OFFICIAL'] = True
+        info['CARD_UID'] = []
+
+        return filament_protocol.FILAMENT_PROTO_OK, info
+
+    except Exception as e:
+        logging.exception("OpenPrintTag payload parsing failed: %s", str(e))
+        return filament_protocol.FILAMENT_PROTO_ERR, None
+
 def openspool_parse_payload(payload):
     if None == payload or not isinstance(payload, (bytes, bytearray)):
         logging.error("OpenSpool payload parsing failed: Invalid payload parameter")
@@ -233,7 +512,17 @@ def ndef_proto_data_parse(data_buf):
         mime_type = record['mime_type']
         payload = record['payload']
 
-        if mime_type == 'application/json':
+        if mime_type == 'application/vnd.openprinttag':
+            logging.info(f"Detected OpenPrintTag format, parsing payload ({len(payload)} bytes)")
+            error_code, info = openprinttag_parse_payload(payload)
+            if error_code != filament_protocol.FILAMENT_PROTO_OK:
+                logging.error(f"OpenPrintTag parse failed: Payload parsing error (code: {error_code})")
+                continue
+            else:
+                logging.info(f"OpenPrintTag parse success: vendor={info.get('VENDOR')}, type={info.get('MAIN_TYPE')}")
+                return error_code, info
+
+        elif mime_type == 'application/json':
             logging.info(f"Detected OpenSpool format, parsing payload ({len(payload)} bytes)")
             error_code, info = openspool_parse_payload(payload)
             if error_code != filament_protocol.FILAMENT_PROTO_OK:
@@ -246,7 +535,7 @@ def ndef_proto_data_parse(data_buf):
         else:
             logging.warning(f"Skipping unsupported MIME type '{mime_type}'")
 
-    logging.error("NDEF parse failed: No supported records found")
+    logging.error("NDEF parse failed: No supported records found (expected 'application/vnd.openprinttag' or 'application/json')")
     return filament_protocol.FILAMENT_PROTO_SIGN_CHECK_ERR, None
 
 if __name__ == '__main__':
