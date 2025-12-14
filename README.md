@@ -21,6 +21,7 @@ and the [release notes](https://github.com/paxx12/SnapmakerU1/releases/latest).
 - [USB Ethernet Adapters](docs/usb_ethernet.md) - Hot-plug support for USB ethernet devices
 - [Data Persistence](docs/data_persistence.md) - Persistent storage across firmware updates
 - Enable fluidd automatically with camera feed.
+- Disable IPv6 to fix camera issues with Snorca app in LAN mode.
 
 ### Extended Firmware
 
