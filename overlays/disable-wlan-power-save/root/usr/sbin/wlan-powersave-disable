@@ -1,0 +1,37 @@
+#!/bin/sh
+
+# Monitor and disable WiFi power save mode
+# Usage: wlan-powersave-disable IFACE [INTERVAL]
+
+set -eu
+
+IFACE="${1:?Missing IFACE argument}"
+INTERVAL="${2:-60}"
+
+# predictable PATH when started from init
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+export PATH
+
+IW="$(command -v iw || true)"
+[ -n "$IW" ] || { logger -t wlan-powersave-disable "iw command not found"; exit 1; }
+
+# wait for iface to appear (avoid boot-time races)
+for _ in $(seq 1 30); do
+  "$IW" dev "$IFACE" info >/dev/null 2>&1 && break
+  sleep 1
+done
+
+# main loop
+while :; do
+  # Check if power_save is on (handle errors gracefully)
+  if power_save_status=$("$IW" dev "$IFACE" get power_save 2>/dev/null); then
+    if echo "$power_save_status" | grep -q "on"; then
+      if "$IW" dev "$IFACE" set power_save off 2>/dev/null; then
+        logger -t wlan-powersave-disable "power_save was ON; set to OFF (iface=$IFACE)"
+      else
+        logger -t wlan-powersave-disable "failed to set power_save off (iface=$IFACE)"
+      fi
+    fi
+  fi
+  sleep "$INTERVAL"
+done
