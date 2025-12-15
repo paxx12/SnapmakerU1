@@ -1,0 +1,42 @@
+#!/bin/sh
+
+NAME="wlan-powersave-disable"
+DAEMON="/usr/sbin/$NAME"
+PIDFILE="/run/$NAME.pid"
+IFACE="wlan0"
+
+# predictable PATH for init environment
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+export PATH
+
+case "$1" in
+  start)
+    echo "Starting $NAME"
+    start-stop-daemon -S -b -m -p "$PIDFILE" -x "$DAEMON" -- "$IFACE"
+    ;;
+  stop)
+    echo "Stopping $NAME"
+    start-stop-daemon -K -p "$PIDFILE" -s TERM 2>/dev/null || true
+    sleep 1
+    rm -f "$PIDFILE"
+    ;;
+  restart)
+    "$0" stop
+    "$0" start
+    ;;
+  status)
+    if [ -f "$PIDFILE" ]; then
+      PID=$(cat "$PIDFILE")
+      if kill -0 "$PID" 2>/dev/null; then
+        echo "$NAME running (pid $PID)"
+        exit 0
+      fi
+    fi
+    echo "$NAME not running"
+    exit 1
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart|status}"
+    exit 1
+    ;;
+esac
