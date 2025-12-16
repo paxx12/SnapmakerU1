@@ -1,4 +1,4 @@
-# 1. Rename this file to `03_usb_camera.cfg` to enable USB camera
+# 1. Rename this file to `09_usb_camera.cfg` to enable USB camera
 # 2. Restart Moonraker
 
 # Enable USB camera using WebRTC
