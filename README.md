@@ -31,6 +31,7 @@ All basic firmware features plus:
 - [USB Camera Support](docs/camera_support.md) - Support for external USB cameras
 - [Klipper and Moonraker Custom Includes](docs/klipper_includes.md) - Add custom configuration files via Fluidd/Mainsail
 - [RFID Filament Tag Support](docs/rfid_support.md) - NTAG213/215/216 support for OpenPrintTag and OpenSpool formats
+- Moonraker Adaptive Mesh Support - Object processing for adaptive mesh features
 - Moonraker Apprise notifications - Send print notifications to Discord, Telegram, Slack, and 90+ services
 - WebRTC low-latency streaming
 - Fluidd or Mainsail (selectable) with timelapse plugin
