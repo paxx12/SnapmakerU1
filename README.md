@@ -51,6 +51,7 @@ Known issues:
 - [Klipper and Moonraker Custom Includes](docs/klipper_includes.md) - Add custom configuration files
 - [RFID Filament Tag Support](docs/rfid_support.md) - RFID filament tag usage and programming
 - [Data Persistence](docs/data_persistence.md) - Persistent storage configuration
+- [Spoolman](docs/connecting_and_using_spoolman.md) - Conneting and basic usage tips in U1's context
 
 ## Dependent projects
 
