@@ -1,0 +1,13 @@
+--- a/home/lava/klipper/klippy/queuelogger.py
++++ b/home/lava/klipper/klippy/queuelogger.py
+@@ -5,8 +5,8 @@
+ # This file may be distributed under the terms of the GNU GPLv3 license.
+ import logging, logging.handlers, threading, queue, time
+ 
+-FILE_SIZE  = 10 * 1024 * 1024   # 10 MiB
+-FILE_COUNT = 15                 # 15 files
++FILE_SIZE  = 1 * 1024 * 1024   # 1 MiB
++FILE_COUNT = 10                # 10 files
+ 
+ # Custom formatter to add timestamp with milliseconds
+ class MillisecondFormatter(logging.Formatter):

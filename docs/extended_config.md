@@ -53,6 +53,12 @@ After saving, reboot the printer.
   * `fluidd` (default) - Fluidd web interface
   * `mainsail` - Mainsail web interface
 
+### [logs]
+
+* `storage` - Log storage location
+
+  * `tmpfs` - Store logs in RAM (tmpfs). Reduces SD card wear but logs are lost on reboot. Log sizes are automatically limited to fit in the 100MB tmpfs.
+
 ## Example Configuration
 
 ```ini
@@ -64,6 +70,9 @@ logs: syslog
 [web]
 frontend: fluidd
 # frontend: mainsail
+
+[logs]
+storage: tmpfs
 ```
 
 ## Important Notes
