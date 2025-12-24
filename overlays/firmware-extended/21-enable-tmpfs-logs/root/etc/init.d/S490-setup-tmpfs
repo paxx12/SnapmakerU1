@@ -1,0 +1,35 @@
+#!/bin/sh
+
+EXTENDED_CFG="/home/lava/printer_data/config/extended/extended.cfg"
+LOGS_STORAGE=$(/usr/local/bin/extended-config.py "$EXTENDED_CFG" logs storage "")
+
+[ "$LOGS_STORAGE" = "tmpfs" ] || exit 0
+
+start() {
+    mount -t tmpfs -o size=100M tmpfs /oem/printer_data/logs
+    chown lava:lava /oem/printer_data/logs
+}
+
+stop() {
+    umount -f /oem/printer_data/logs
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    restart|reload)
+        stop
+        sleep 1
+        start
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+        ;;
+esac
+
+exit 0

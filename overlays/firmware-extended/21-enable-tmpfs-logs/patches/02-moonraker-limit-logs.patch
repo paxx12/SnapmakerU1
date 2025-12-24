@@ -1,0 +1,13 @@
+--- a/home/lava/moonraker/moonraker/loghelper.py
++++ b/home/lava/moonraker/moonraker/loghelper.py
+@@ -45,8 +45,8 @@
+ # Timed Rotating File Handler, based on Klipper's implementation
+ class MoonrakerLoggingHandler(logging.handlers.RotatingFileHandler):
+     def __init__(self, app_args: Dict[str, Any], **kwargs) -> None:
+-        # Set max log file size to 10MB, keep up to 10 backup files
+-        max_bytes = kwargs.pop('maxBytes', 10 * 1024 * 1024)
++        # Set max log file size to 1MB, keep up to 10 backup files
++        max_bytes = kwargs.pop('maxBytes', 1 * 1024 * 1024)
+         backup_count = kwargs.pop('backupCount', 10)
+         super().__init__(app_args['log_file'], maxBytes=max_bytes, backupCount=backup_count, **kwargs)
+         self.app_args = app_args

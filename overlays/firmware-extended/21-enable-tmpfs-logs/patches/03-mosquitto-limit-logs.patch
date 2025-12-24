@@ -1,0 +1,12 @@
+diff --label a/etc/mosquitto/ --label b/etc/mosquitto/ -uNr a/etc/mosquitto/ b/etc/mosquitto/
+--- a/etc/mosquitto/
++++ b/etc/mosquitto/
+@@ -11,7 +11,7 @@
+ # Interval in seconds for automatic state saving (global setting)
+ autosave_interval 30
+ # Log destination file
+-log_dest file /home/lava/printer_data/logs/mosquitto.log
++log_dest syslog
+ # Log level (debug, error, warning, notice, information)
+ log_type notice
+ log_type warning
