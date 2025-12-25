@@ -92,6 +92,31 @@ Overlays are organized into categories based on their scope and build profile. E
 - `basic-devel` or `extended-devel` - Add development overlays from `overlays/devel/` to the selected profile
   - e.g. `./dev.sh make build PROFILE=extended DEVEL=1`
 
+### Devel Profile Features
+
+When running firmware built with the `-devel` profile, additional development tools are available:
+
+**Entware Package Manager**
+
+> The Entware is considered highly untrusted component,
+> and might be removed at any point in the future without notice.
+
+The devel profile includes Entware support for installing additional packages. After booting the devel firmware, initialize Entware:
+
+```bash
+entware-ctrl init
+```
+
+This sets up the Entware environment in `/userdata/extended/entware` and installs the bootstrap packages.
+
+Other entware-ctrl commands:
+
+- `entware-ctrl start` - Activate Entware (mount /opt)
+- `entware-ctrl stop` - Deactivate Entware (unmount /opt)
+- `entware-ctrl nuke` - Remove Entware installation completely
+
+Once initialized, use `opkg` to install packages from the Entware repository.
+
 ### Directory Structure
 
 ```text
