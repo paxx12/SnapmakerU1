@@ -1,6 +1,6 @@
 --- a/etc/nginx/sites-available/fluidd
 +++ b/etc/nginx/sites-available/fluidd
-@@ -59,6 +59,15 @@
+@@ -59,6 +59,20 @@
          proxy_read_timeout 600;
      }
  

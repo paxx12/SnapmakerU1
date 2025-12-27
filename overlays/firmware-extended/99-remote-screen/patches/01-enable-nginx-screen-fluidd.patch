@@ -1,7 +1,6 @@
 --- a/etc/nginx/sites-available/fluidd
 +++ b/etc/nginx/sites-available/fluidd
-@@ -94,4 +94,25 @@
-         error_log off;
+@@ -109,3 +109,23 @@
          proxy_pass http://mjpgstreamer4/;
      }
 +
@@ -25,3 +24,4 @@
 +        proxy_read_timeout 86400;
 +    }
  }
+
