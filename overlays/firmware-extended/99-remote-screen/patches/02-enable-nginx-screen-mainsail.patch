@@ -1,0 +1,23 @@
+--- a/etc/nginx/sites-available/mainsail
++++ b/etc/nginx/sites-available/mainsail
+@@ -1,3 +1,18 @@
++    # Remote screen access via noVNC
++    location = /screen {
++        return 301 /screen/;
++    }
++
++    location /screen/ {
++        alias /home/lava/novnc/;
++        index vnc.html;
++    }
++
++    location /screen/websockify {
++        proxy_pass http://unix:/var/run/websockify.sock:/;
++        proxy_http_version 1.1;
++        proxy_set_header Upgrade $http_upgrade;
++        proxy_set_header Connection $connection_upgrade;
++        proxy_set_header Host $host;
++        proxy_read_timeout 86400;
++    }
+ }
++# End of mainsail nginx configuration
