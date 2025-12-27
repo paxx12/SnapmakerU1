@@ -1,0 +1,9 @@
+{
+    "name": "usb",
+    "enabled": false,
+    "icon": "mdiPrinter3d",
+    "aspect_ratio": "16:9",
+    "service": "webrtc-camerastreamer",
+    "stream_url": "/webcam2/webrtc",
+    "snapshot_url": "/webcam2/snapshot.jpg"
+}

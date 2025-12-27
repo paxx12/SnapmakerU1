@@ -1,0 +1,79 @@
+#!/bin/sh
+
+EXTENDED_CFG="/home/lava/printer_data/config/extended/extended.cfg"
+CAMERA_STACK=$(/usr/local/bin/extended-config.py "$EXTENDED_CFG" camera stack paxx12)
+CAMERA_CONFIG_PATH=$(/usr/local/bin/extended-config.py "$EXTENDED_CFG" camera config_path "")
+CAMERAS=$(/usr/local/bin/extended-config.py "$EXTENDED_CFG" camera cameras case | tr ',' ' ' | tr -s ' ')
+
+[ "$CAMERA_STACK" != "snapmaker" ] || exit 0
+
+umask 0022
+
+wait_for_moonraker() {
+    /usr/local/bin/curl -m 5 -sS -o /dev/null -w "%{http_code}" http://localhost/server/webcams/list
+}
+
+add_camera() {
+    /usr/local/bin/curl -o /dev/null -sSX POST http://localhost/server/webcams/item -H "Content-Type: application/json" -d @"$1"
+}
+
+check_camera() {
+    /usr/local/bin/curl -sS -o /dev/null -w "%{http_code}" "http://localhost/server/webcams/item?name=$1"
+}
+
+start() {
+    logger -t v4l2-webcams "Starting moonraker camera addition"
+    
+    MOONRAKER_READY=0
+    for _ in $(seq 1 5); do
+        HTTP_CODE=$(wait_for_moonraker)
+        if [ "$HTTP_CODE" -eq 200 ]; then
+            MOONRAKER_READY=1
+            logger -t v4l2-webcams "Moonraker API is available, adding cameras"
+            for camera in $CAMERAS; do
+                CAMERA_HTTP_CODE=$(check_camera "$camera")
+                if [ "$CAMERA_HTTP_CODE" -eq 200 ]; then
+                    logger -t v4l2-webcams "Camera named $camera already exists, skipping"
+                else
+                    logger -t v4l2-webcams "Adding $camera camera to moonraker"
+                    add_camera "$CAMERA_CONFIG_PATH/$camera.json"
+                fi
+            done
+            logger -t v4l2-webcams "Camera addition completed"
+            break
+        else
+            sleep 5
+        fi
+    done
+    
+    if [ "$MOONRAKER_READY" -eq 0 ]; then
+        logger -t v4l2-webcams -p user.err "Failed to connect to Moonraker API after 5 retries, cameras not added"
+    fi
+}
+
+case "$1" in
+    start)
+        printf "Starting moonraker camera addition: "
+        start-stop-daemon -S -b -m -p /var/run/v4l2-webcams-in-moonraker.pid -- "$0" background
+        echo "OK (backgrounded)"
+        ;;
+    background)
+        start
+        ;;
+    stop)
+        printf "Stopping moonraker camera addition: "
+        start-stop-daemon -K -q -p /var/run/v4l2-webcams-in-moonraker.pid
+        echo "OK"
+        ;;
+    restart|reload)
+        $0 stop
+        sleep 1
+        $0 start
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+        ;;
+esac
+
+exit 0

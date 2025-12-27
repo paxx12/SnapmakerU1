@@ -1,0 +1,9 @@
+{
+    "name": "case",
+    "enabled": true,
+    "icon": "mdiRadiatorDisabled",
+    "aspect_ratio": "16:9",
+    "service": "webrtc-camerastreamer",
+    "stream_url": "/webcam/webrtc",
+    "snapshot_url": "/webcam/snapshot.jpg"
+}
