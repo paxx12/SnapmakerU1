@@ -1,6 +1,5 @@
 FROM debian:trixie
 
-#hadolint ignore=DL3008
 RUN apt-get update -y && \
     apt-get install -y \
       build-essential \
@@ -22,7 +21,6 @@ RUN apt-get update -y && \
       && git config --global --add safe.directory '*' \
       && rm -rf /var/lib/apt/lists/*
 
-#hadolint ignore=DL3008
 RUN dpkg --add-architecture arm64 && \
       apt-get update -y && \
       apt-get install -y \
