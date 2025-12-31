@@ -1,12 +1,15 @@
 diff -uNr rootfs.original/home/lava/origin_printer_data/config/printer.cfg rootfs/home/lava/origin_printer_data/config/printer.cfg
---- rootfs.original/home/lava/origin_printer_data/config/printer.cfg	2025-11-06 05:01:19.000000000 +0100
-+++ rootfs/home/lava/origin_printer_data/config/printer.cfg	2025-12-04 10:31:52.832922872 +0100
-@@ -1258,4 +1258,6 @@
- #*# max_x = 240.0
- #*# min_y = 20.0
- #*# max_y = 240.0
--#*#
-\ No newline at end of file
-+#*#
-+
+--- rootfs.original/home/lava/origin_printer_data/config/printer.cfg	2025-12-30 05:40:32.000000000 +0100
++++ rootfs/home/lava/origin_printer_data/config/printer.cfg	2026-01-05 12:12:28.551843832 +0100
+@@ -1261,6 +1261,11 @@
+ #################################################################
+ [defect_detection]
+ 
++#################################################################
++###    extended custom includes
++#################################################################
 +[include extended/klipper/*.cfg]
++
+ #*# <---------------------- SAVE_CONFIG ---------------------->
+ #*# DO NOT EDIT THIS BLOCK OR BELOW. The contents are auto-generated.
+ #*#
