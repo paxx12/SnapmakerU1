@@ -68,7 +68,7 @@ for overlay; do
   if [[ -d "$overlay/patches/" ]]; then
     for patchfile in "$overlay/patches/"*.patch; do
       echo "[+] Applying patch: $(basename "$patchfile")"
-      patch -d "$TEMP_DIR/rootfs" -p1 < "$patchfile"
+      patch -F 0 -d "$TEMP_DIR/rootfs" -p1 < "$patchfile"
     done
   fi
 

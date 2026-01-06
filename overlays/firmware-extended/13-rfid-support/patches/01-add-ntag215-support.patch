@@ -1,21 +1,19 @@
 diff -uNr rootfs.original/home/lava/klipper/klippy/extras/fm175xx_reader.py rootfs/home/lava/klipper/klippy/extras/fm175xx_reader.py
 --- rootfs.original/home/lava/klipper/klippy/extras/fm175xx_reader.py	2025-11-06 05:01:19.000000000 +0100
 +++ rootfs/home/lava/klipper/klippy/extras/fm175xx_reader.py	2025-12-01 23:11:18.401585041 +0100
-@@ -120,7 +120,15 @@
- 
+@@ -121,6 +121,14 @@
  # RFID card type
  FM175XX_MIFARE_CARD_TYPE_UNKNOWN        = 0xFF  # unknown type
--FM175XX_MIFARE_CARD_TYPE_M1             = 0x08  # M1
-+FM175XX_MIFARE_CARD_TYPE_M1             = 0x08  # M1 (ISO 14443A)
+ FM175XX_MIFARE_CARD_TYPE_M1             = 0x08  # M1
 +FM175XX_MIFARE_CARD_TYPE_NTAG           = 0x00  # NTAG (ISO 14443A, same SAK as Ultralight)
- 
++
 +# About NTAG215 Card
 +FM175XX_NTAG215_TOTAL_PAGES             = 135
 +FM175XX_NTAG215_USER_START_PAGE         = 4
 +FM175XX_NTAG215_USER_END_PAGE           = 129
 +FM175XX_NTAG215_BYTES_PER_PAGE          = 4
 +FM175XX_NTAG215_TOTAL_SIZE              = 540
-+
+ 
  # About M1 Card
  # EEPROM
 @@ -584,8 +592,22 @@
