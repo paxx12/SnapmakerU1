@@ -30,15 +30,8 @@ Remote screen access is **disabled by default**. To enable it:
 1. On the printer, go to **Settings > Maintenance > Advanced Mode** and enable it
 2. Open Fluidd or Mainsail in your web browser (`http://<printer-ip>`)
 3. Go to the **Configuration** tab
-4. Navigate to the root directory and open `extended.cfg`
-5. Add or modify the `[remote_screen]` section:
-
-   ```ini
-   [remote_screen]
-   enabled: true
-   ```
-
-6. Save the file
+4. Modify the `extended.cfg`, and set `[remote_screen] enabled: true`. Save the file.
+7. Modify the `extended/moonraker/04_remote_screen.cfg` and set `enabled: true`. Save the file.
 7. Reboot the printer
 
 ### Via SSH
@@ -57,12 +50,27 @@ enabled: true
 
 Save and reboot the printer.
 
+```
+ssh lava@<printer-ip>
+vi /home/lava/printer_data/config/extended/moonraker/04_remote_screen.cfg
+```
+
+Add or modify:
+
+```ini
+[webcam gui]
+enabled: true
+```
+
+Save and reboot the printer.
+
 ## Security
 
 - Reuses Fluidd/Mainsail authentication which is none by default
 - Remote screen is disabled by default in [extended.cfg](../10-default-config/root/home/lava/default-config/extended/extended.cfg) because by default there is no authentication
-- User has to explicitly enable it in `extended.cfg`
+- User has to explicitly enable it in `extended.cfg` and in `04_remote_screen.cfg`
 - Requires authentication only if Fluidd/Mainsail also require authentication (Moonraker config)
+- The `GUI` iframe only works in Fluidd. Mainsail does not expose the `iframe`
 
 ## Browser/Device Compatibility
 
