@@ -40,6 +40,7 @@ All basic firmware features plus:
 - Fluidd or Mainsail (selectable) with timelapse plugin
 - [Remote Screen](remote_screen.md) - View printer screen remotely via web browser
 - [Monitoring](monitoring.md) - Local OpenMetrics exporter for monitoring systems
+- [Timelapse recovery tool](https://github.com/horzadome/snapmaker-u1-timelapse-recovery) - Recover unplayable timelapse videos
 
 Known issues:
 
