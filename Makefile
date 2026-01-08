@@ -42,7 +42,7 @@ profiles:
 # ================= Tools =================
 
 .PHONY: tools
-tools: tools/rk2918_tools tools/upfile
+tools: tools/rk2918_tools tools/upfile tools/resource_tool
 
 tools/%: FORCE
 	make -C $@

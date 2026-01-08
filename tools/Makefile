@@ -1,4 +1,4 @@
-all: rk2918_tools upfile
+all: rk2918_tools upfile resource_tool
 
 # ================= Tools =================
 
