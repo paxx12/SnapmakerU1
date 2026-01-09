@@ -23,7 +23,7 @@ The `extended.cfg` file is automatically created by the firmware.
 1. On the printer, go to **Settings > Maintenance > Advanced Mode** and enable it
 2. Open Fluidd or Mainsail in your web browser (`http://<printer-ip>`)
 3. Go to the **Configuration** tab
-4. Navigate to the root directory and open `extended.cfg`
+4. Navigate to the `extended` directory and open `extended.cfg`
 5. Add or modify your configuration options (see below)
 6. Save the file
 7. Reboot the printer
