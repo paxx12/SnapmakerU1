@@ -26,6 +26,29 @@ def xxd_dump(data, max_lines=16):
 
     return '\n'.join(lines)
 
+def parse_hex_color(color_hex):
+    if color_hex.startswith('#'):
+        color_hex = color_hex[1:]
+
+    if len(color_hex) not in [6, 8]:
+        raise ValueError(f"Invalid color: {color_hex}")
+
+    r = color_hex[0:2]
+    g = color_hex[2:4]
+    b = color_hex[4:6]
+    alpha = color_hex[6:8] if len(color_hex) == 8 else "ff"
+
+    try:
+        rgb = int(r + g + b, 16)
+        alpha = int(alpha, 16)
+    except ValueError:
+        rgb = 0xFFFFFF
+        alpha = 0xFF
+
+    argb = alpha << 24 | rgb
+
+    return rgb, alpha, argb
+
 def ndef_parse(data_buf):
     if None == data_buf or isinstance(data_buf, (list, bytes, bytearray)) == False:
         return NDEF_PARAMETER_ERR, []
@@ -153,27 +176,38 @@ def openspool_parse_payload(payload):
         info['MAIN_TYPE'] = data.get('type', 'PLA').upper()
         info['SUB_TYPE'] = data.get('subtype', 'Basic')
         info['TRAY'] = 0
+        info.update({f'RGB_{i}': 0x0 for i in range(1, 6)})
 
-        color_hex = data.get('color_hex', 'FFFFFF')
-        if color_hex.startswith('#'):
-            color_hex = color_hex[1:]
-        try:
-            rgb_value = int(color_hex, 16)
-            info['RGB_1'] = rgb_value
+        if data.get('multi_color_hexes', None):
+            colors = data.get('multi_color_hexes')
+            color_list = [c.strip() for c in colors.split(',')]
+            color_nums = min(len(color_list), 5)
+            for i in range(color_nums):
+                try:
+                    rgb, _, _ = parse_hex_color(color_list[i])
+                    info[f'RGB_{i+1}'] = rgb
+                except ValueError:
+                    pass
+
             info['ALPHA'] = 0xFF
-        except ValueError:
-            info['RGB_1'] = 0xFFFFFF
-            info['ALPHA'] = 0xFF
+            info['ARGB_COLOR'] = info['ALPHA'] << 24 | info['RGB_1']
+            info['COLOR_NUMS'] = color_nums
 
-        info['COLOR_NUMS'] = 1
-        info['RGB_2'] = 0
-        info['RGB_3'] = 0
-        info['RGB_4'] = 0
-        info['RGB_5'] = 0
-        info['ARGB_COLOR'] = info['ALPHA'] << 24 | info['RGB_1']
+        else:
+            color_hex = data.get('color_hex', 'FFFFFF')
+            try:
+                rgb, alpha, _ = parse_hex_color(color_hex)
+                info['RGB_1'] = rgb
+                info['ALPHA'] = alpha
+            except ValueError:
+                info['RGB_1'] = 0xFFFFFF
+                info['ALPHA'] = 0xFF
 
-        info['DIAMETER'] = 175
-        info['WEIGHT'] = 0
+            info['ARGB_COLOR'] = info['ALPHA'] << 24 | info['RGB_1']
+            info['COLOR_NUMS'] = 1
+
+        info['DIAMETER'] = data.get('diameter', 175)
+        info['WEIGHT'] = data.get('weight', 0)
         info['LENGTH'] = 0
         info['DRYING_TEMP'] = 0
         info['DRYING_TIME'] = 0
