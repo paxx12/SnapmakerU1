@@ -10,13 +10,21 @@ shift
 
 cd "$ROOTFS"
 
-if [[ -e ./etc/resolv.conf ]]; then
-  echo "[!] The ./etc/resolv.conf file already exists. Failing."
-  exit 1
-fi
-
+[[ -e ./etc/resolv.conf ]] && mv ./etc/resolv.conf{,.bak}
 echo "nameserver 1.1.1.1" > ./etc/resolv.conf
 
-chroot "$ROOTFS" "$@"
+cleanup() {
+  rm -f ./etc/resolv.conf
+  [[ -e ./etc/resolv.conf.bak ]] && mv ./etc/resolv.conf{.bak,}
+  umount -l ./proc
+  umount -l ./sys
+  umount -l ./dev
+}
 
-rm -f ./etc/resolv.conf
+trap cleanup EXIT
+
+mount -t proc /proc ./proc
+mount --bind /sys ./sys
+mount --bind /dev ./dev
+
+chroot "$ROOTFS" "$@"
