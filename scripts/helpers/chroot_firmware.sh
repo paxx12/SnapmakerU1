@@ -22,15 +22,19 @@ cleanup() {
   umount -l ./sys
   umount -l ./dev
   umount -l ./root/.cache
+  umount -l ./firmware-root
+  rmdir ./firmware-root
 }
 
 trap cleanup EXIT
 
 mkdir -p "$CACHE_DIR" ./root/.cache
+mkdir -p ./firmware-root
 
 mount --bind "$CACHE_DIR" ./root/.cache
 mount -t proc /proc ./proc
 mount --bind /sys ./sys
 mount --bind /dev ./dev
+mount --bind "$ROOT_DIR" ./firmware-root
 
 chroot "$ROOTFS" "$@"
