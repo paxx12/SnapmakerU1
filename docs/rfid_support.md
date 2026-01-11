@@ -76,9 +76,11 @@ Using the non-standard OpenSpool `subtype` field it is possible to specify a mat
 {
   "protocol": "openspool",
   "version": "1.0",
-  "type": "PETG",
-  "subtype": "Rapid",
+  "type": "PLA",
+  "subtype": "Silk Rainbow",
   "color_hex": "AFAFAF",
+  "additional_color_hexes": "EEFFEE,FF00FF",
+  "alpha": "FF",
   "brand": "Elegoo",
   "min_temp": "230",
   "max_temp": "260"
@@ -97,7 +99,9 @@ Using the non-standard OpenSpool `subtype` field it is possible to specify a mat
 **Supported non-standard OpenSpool Fields:**
 - `bed_min_temp` (optional) - Minimum bed temperature in °C
 - `bed_max_temp` (optional) - Maximum bed temperature in °C
-- `subtype` (optional, default: "Basic") - Material subtype (e.g. "Rapid", "HF")
+- `subtype` (optional, default: "Basic") - Material subtype (e.g. "Rapid", "HF", "Silk")
+- `alpha` (optional, default: "FF") - Alpha of color, range is (0x00..0xFF) (e.g., "00")
+- `additional_color_hexes` (optional) - Additional colors, such as Silk Rainbow, up to 4 colors (e.g., 'EEFFEE,FF00FF' or ['EEFFEE', 'FF00FF']
 
 ## Snapmaker Orca Filament Naming Scheme
 
