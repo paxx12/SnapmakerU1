@@ -62,7 +62,7 @@ If you find this project useful and would like to support its development, you c
 
 [![Buy Me A Coffee](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/paxx12)
 
-🖨️ **Buy a Snapmaker Printer from Official Store** - use referral link
+🖨️ **Buy a Snapmaker Printer from Official Store** - use referral link and discount code `PAXX12` to get 5% discount on any purchase
 
   * EU store: [https://snapmaker-eu.myshopify.com?ref=paxx12](https://snapmaker-eu.myshopify.com?ref=paxx12)
   * US store: [https://snapmaker-us.myshopify.com?ref=paxx12](https://snapmaker-us.myshopify.com?ref=paxx12)
