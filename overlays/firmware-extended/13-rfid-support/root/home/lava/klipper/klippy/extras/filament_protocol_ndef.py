@@ -26,29 +26,6 @@ def xxd_dump(data, max_lines=16):
 
     return '\n'.join(lines)
 
-def parse_hex_color(color_hex):
-    if color_hex.startswith('#'):
-        color_hex = color_hex[1:]
-
-    if len(color_hex) not in [6, 8]:
-        raise ValueError(f"Invalid color: {color_hex}")
-
-    r = color_hex[0:2]
-    g = color_hex[2:4]
-    b = color_hex[4:6]
-    alpha = color_hex[6:8] if len(color_hex) == 8 else "ff"
-
-    try:
-        rgb = int(r + g + b, 16)
-        alpha = int(alpha, 16)
-    except ValueError:
-        rgb = 0xFFFFFF
-        alpha = 0xFF
-
-    argb = alpha << 24 | rgb
-
-    return rgb, alpha, argb
-
 def ndef_parse(data_buf):
     if None == data_buf or isinstance(data_buf, (list, bytes, bytearray)) == False:
         return NDEF_PARAMETER_ERR, []
@@ -149,6 +126,15 @@ def ndef_parse(data_buf):
         logging.exception("NDEF parsing failed: %s", str(e))
         return NDEF_ERR, []
 
+def parse_color_hex(value):
+    try:
+        hex_str = str(value)
+        if hex_str.startswith('#'):
+            hex_str = hex_str[1:]
+        return int(hex_str, 16)
+    except (ValueError, TypeError):
+        return 0xFFFFFF
+
 def openspool_parse_payload(payload):
     if None == payload or not isinstance(payload, (bytes, bytearray)):
         logging.error("OpenSpool payload parsing failed: Invalid payload parameter")
@@ -178,40 +164,32 @@ def openspool_parse_payload(payload):
         info['TRAY'] = 0
 
         info['COLOR_NUMS'] = 1
-        info.update({f'RGB_{i}': 0x0 for i in range(1, 6)})
-        color_hex = data.get('color_hex', 'FFFFFF')
+        info['RGB_1'] = parse_color_hex(data.get('color_hex', 'FFFFFF'))
+
+        additional_color_hexes = list(data.get('additional_color_hexes') or [])
+        for hex_color in additional_color_hexes[:5]:
+            idx = info['COLOR_NUMS'] + 1
+            info['COLOR_NUMS'] = idx
+            info[f'RGB_{idx}'] = parse_color_hex(hex_color)
+
+        for i in range(info['COLOR_NUMS'] + 1, 6):
+            info[f'RGB_{i}'] = 0
+
         try:
-            rgb, alpha, _ = parse_hex_color(color_hex)
-            info['RGB_1'] = rgb
-            info['ALPHA'] = alpha
-        except ValueError:
-            info['RGB_1'] = 0xFFFFFF
+            info['ALPHA'] = max(0x00, min(0xFF, int(data.get('alpha'))))
+        except (ValueError, TypeError):
             info['ALPHA'] = 0xFF
 
-        add_colors = data.get('additional_color_hexes', [])
-        if type(add_colors) == list:
-            color_list = add_colors
-        else:
-            color_list = [c.strip() for c in add_colors.split(',')]
-        color_nums = min(len(color_list), 4)
-        info['COLOR_NUMS'] += color_nums
-        for i in range(color_nums):
-            try:
-                rgb, _, _ = parse_hex_color(color_list[i])
-                info[f'RGB_{i+2}'] = rgb
-            except ValueError:
-                pass
-
-        if data.get('alpha', None):
-            try:
-                alpha = max(min(int(data.get('alpha'), 16), 0xFF), 0x00)
-                info['ALPHA'] = alpha
-            except ValueError:
-                pass
         info['ARGB_COLOR'] = info['ALPHA'] << 24 | info['RGB_1']
 
-        info['DIAMETER'] = data.get('diameter', 175)
-        info['WEIGHT'] = data.get('weight', 0)
+        try:
+            info['DIAMETER'] = int(float(data.get('diameter', 1.75)) * 100)
+        except (ValueError, TypeError):
+            info['DIAMETER'] = 175
+        try:
+            info['WEIGHT'] = int(data.get('weight', 0))
+        except (ValueError, TypeError):
+            info['WEIGHT'] = 0
         info['LENGTH'] = 0
         info['DRYING_TEMP'] = 0
         info['DRYING_TIME'] = 0
