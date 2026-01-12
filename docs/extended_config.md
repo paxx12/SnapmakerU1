@@ -61,6 +61,11 @@ The `.default` files are updated on each boot to reflect the current firmware de
 
   * `syslog` - Enable logging to syslog (/var/log/messages)
 
+* `rtsp` - Enable RTSP streaming support (paxx12 stack only)
+
+  * `true` - Enable RTSP streaming (available at rtsp://<printer-ip>:8554/stream for internal camera, rtsp://<printer-ip>:8555/stream for USB camera)
+  * `false` (default) - RTSP streaming disabled
+
 ### [web]
 
 * `frontend` - Web interface selection (only one can be active)
@@ -75,6 +80,7 @@ The `.default` files are updated on each boot to reflect the current firmware de
 stack: paxx12
 # stack: snapmaker
 logs: syslog
+# rtsp: true
 
 [web]
 frontend: fluidd

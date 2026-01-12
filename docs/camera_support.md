@@ -65,6 +65,25 @@ logs: syslog
 
 This enables the `--syslog` flag for all camera-related services. Logs are available in `/var/log/messages`. See [Extended Configuration](extended_config.md) for details.
 
+## RTSP Support
+
+**Note: RTSP streaming is only available with the paxx12 camera stack.**
+
+RTSP streaming support can be enabled in `/home/lava/printer_data/config/extended/extended.cfg`:
+
+```ini
+[camera]
+stack: paxx12
+rtsp: true
+```
+
+When enabled, RTSP streams are available at:
+
+- Internal camera: `rtsp://<printer-ip>:8554/stream` (default port)
+- USB camera: `rtsp://<printer-ip>:8555/stream`
+
+After enabling RTSP, reboot the printer for the changes to take effect.
+
 ## Timelapse Support
 
 Fluidd timelapse plugin is included (no settings support).
