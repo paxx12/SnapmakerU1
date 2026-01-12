@@ -24,7 +24,7 @@ CMD_WEBRTC="/usr/local/bin/stream-webrtc --h264-sock /tmp/capture-mipi-h264.sock
 CMD_HTTP="/usr/bin/python3 /usr/local/bin/stream-http.py --jpeg-sock /tmp/capture-mipi-jpeg.sock --mjpeg-sock /tmp/capture-mipi-mjpeg.sock --h264-sock /tmp/capture-mipi-h264.sock --webrtc-sock /tmp/capture-mipi-webrtc.sock --control-sock /tmp/v4l2-control-mipi.sock --bind 127.0.0.1"
 
 CMD_CTRL="/usr/bin/python3"
-CMD_CTRL_ARGS="/usr/local/bin/control-v4l2.py --device /dev/v4l-subdev2 --sock /tmp/v4l2-control-mipi.sock"
+CMD_CTRL_ARGS="/usr/local/bin/control-v4l2.py --device /dev/v4l-subdev2 --sock /tmp/v4l2-control-mipi.sock --state-file /oem/printer_data/config/extended/camera/case.json"
 
 CMD_RTSP="/usr/local/bin/stream-rtsp --h264-sock /tmp/capture-mipi-h264.sock --rtsp-port 8554 --max-clients 4"
 

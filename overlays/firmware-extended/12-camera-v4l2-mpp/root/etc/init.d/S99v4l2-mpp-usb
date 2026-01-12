@@ -20,7 +20,7 @@ CMD_WEBRTC="/usr/local/bin/stream-webrtc --h264-sock /tmp/capture-usb-h264.sock 
 CMD_HTTP="/usr/bin/python3 /usr/local/bin/stream-http.py --jpeg-sock /tmp/capture-usb-jpeg.sock --mjpeg-sock /tmp/capture-usb-mjpeg.sock --h264-sock /tmp/capture-usb-h264.sock --webrtc-sock /tmp/capture-usb-webrtc.sock --control-sock /tmp/v4l2-control-usb.sock --bind 127.0.0.1 --port 8081"
 
 CMD_CTRL="/usr/bin/python3"
-CMD_CTRL_ARGS="/usr/local/bin/control-v4l2.py --device /dev/video18 --sock /tmp/v4l2-control-usb.sock"
+CMD_CTRL_ARGS="/usr/local/bin/control-v4l2.py --device /dev/video18 --sock /tmp/v4l2-control-usb.sock --state-file /oem/printer_data/config/extended/camera/usb.json"
 
 CMD_RTSP="/usr/local/bin/stream-rtsp --h264-sock /tmp/capture-usb-h264.sock --rtsp-port 8555 --max-clients 4"
 
