@@ -13,13 +13,13 @@ The extended firmware includes web-based remote screen access with touch control
 - Full screen mirroring of the printer's display
 - Touch input support (tap, swipe, multi-touch)
 - Access from any device (desktop, tablet, phone)
-- Authentication inherited from the active web UI (Fluidd or Mainsail)
+- Authentication inherited from Fluidd/Mainsail web interface
 
 ## Accessing the Remote Screen
 
 Once enabled, access the remote screen at:
 
-```
+```text
 http://<printer-ip>/screen/
 ```
 
@@ -29,14 +29,14 @@ Replace `<printer-ip>` with your printer's IP address.
 
 Remote screen access is **disabled by default**. To enable it:
 
-### Via Fluidd or Mainsail
+### Via Fluidd/Mainsail
 
 1. On the printer, go to **Settings > Maintenance > Advanced Mode** and enable it
 2. Open Fluidd or Mainsail in your web browser (`http://<printer-ip>`)
 3. Go to the **Configuration** tab
-4. Modify `extended.cfg` and set `[remote_screen] enabled: true`. Save the file.
-5. Modify `extended/moonraker/04_remote_screen.cfg` and set `enabled: true`. Save the file.
-6. Reboot the printer
+4. Modify the `extended.cfg`, and set `[remote_screen] enabled: true`. Save the file.
+7. Modify the `extended/moonraker/04_remote_screen.cfg` and set `enabled: true`. Save the file.
+7. Reboot the printer
 
 ### Via SSH
 
@@ -54,7 +54,7 @@ enabled: true
 
 Save and reboot the printer.
 
-```bash
+```
 ssh lava@<printer-ip>
 vi /home/lava/printer_data/config/extended/moonraker/04_remote_screen.cfg
 ```
@@ -68,17 +68,9 @@ enabled: true
 
 Save and reboot the printer.
 
-## Security
+## Browser/Device Compatibility
 
-- Reuses authentication provided by Fluidd or Mainsail (none by default)
-- Remote screen is disabled by default in `extended.cfg` because authentication is disabled by default
-- Must be explicitly enabled in both `extended.cfg` and `04_remote_screen.cfg`
-- Requires authentication only if the active web UI also requires authentication (via Moonraker configuration)
-- Embedding the remote screen into a UI is an explicit user action and should only be done with trusted sources
-
-## Browser / Device Compatibility
-
-The remote screen uses standard HTML and works with all modern browsers.
+The remote screen uses normal HTML and works with all modern browsers.
 It can also be installed as a Progressive Web App (PWA) on supported devices for a more app-like experience.
 
 ## Troubleshooting
@@ -87,7 +79,7 @@ It can also be installed as a Progressive Web App (PWA) on supported devices for
 
 1. Verify remote screen is enabled in `extended.cfg`
 2. Reboot the printer after enabling
-3. Check that you can access Fluidd or Mainsail normally
+3. Check that you can access Fluidd/Mainsail web interfaces normally
 
 ### Screen appears frozen
 
@@ -95,10 +87,10 @@ It can also be installed as a Progressive Web App (PWA) on supported devices for
 2. Check if the printer's physical screen is responding
 3. Restart the remote screen service:
 
-```bash
-ssh lava@<printer-ip>
-sudo /etc/init.d/S99fb-http restart
-```
+   ```bash
+   ssh lava@<printer-ip>
+   sudo /etc/init.d/S99fb-http restart
+   ```
 
 ## Technical Details
 
