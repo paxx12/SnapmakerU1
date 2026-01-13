@@ -27,7 +27,7 @@ For developers who want to build custom firmware, see [Building from Source](dev
 
 ### Basic Firmware
 
-Almost stock firmware with minimal changes for debugging and convenience:
+Stock firmware with SSH access and minimal debugging features:
 
 - [SSH Access](ssh_access.md) - Remote shell access with `root/snapmaker` and `lava/snapmaker`
 - [Data Persistence](data_persistence.md) - Persistent storage configuration across firmware updates
