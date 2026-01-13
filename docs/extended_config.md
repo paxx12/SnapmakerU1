@@ -52,26 +52,22 @@ The `.default` files are updated on each boot to reflect the current firmware de
 
 ### [camera]
 
-* `stack` - Camera stack selection (only one can be active)
+**stack** - Camera stack selection (only one can be active)
+- `paxx12` (default) - Hardware-accelerated v4l2-mpp camera stack with WebRTC and timelapse
+- `snapmaker` - Native Snapmaker camera service
 
-  * `paxx12` - Hardware-accelerated v4l2-mpp camera stack (WebRTC, timelapse)
-  * `snapmaker` - Native Snapmaker camera service
+**logs** - Camera service logging destination
+- `syslog` - Enable logging to `/var/log/messages`
 
-* `logs` - Camera service logging destination
-
-  * `syslog` - Enable logging to syslog (/var/log/messages)
-
-* `rtsp` - Enable RTSP streaming support (paxx12 stack only)
-
-  * `true` - Enable RTSP streaming (available at rtsp://<printer-ip>:8554/stream for internal camera, rtsp://<printer-ip>:8555/stream for USB camera)
-  * `false` (default) - RTSP streaming disabled
+**rtsp** - Enable RTSP streaming support (paxx12 stack only)
+- `true` - Enable RTSP streaming at `rtsp://<printer-ip>:8554/stream` (internal) and `rtsp://<printer-ip>:8555/stream` (USB)
+- `false` (default) - RTSP streaming disabled
 
 ### [web]
 
-* `frontend` - Web interface selection (only one can be active)
-
-  * `fluidd` (default) - Fluidd web interface
-  * `mainsail` - Mainsail web interface
+**frontend** - Web interface selection (only one can be active)
+- `fluidd` (default) - Fluidd web interface
+- `mainsail` - Mainsail web interface
 
 ## Example Configuration
 
@@ -89,29 +85,27 @@ frontend: fluidd
 
 ## Important Notes
 
-- After making changes to `extended.cfg`, reboot the printer
-- The file uses INI-style format with sections `[camera]` and `[web]`
+- After making changes to `extended.cfg`, reboot the printer for changes to take effect
+- The file uses INI-style format with sections like `[camera]` and `[web]`
 - Lines starting with `#` are comments and ignored
 - Only one camera stack can be active at a time
-- Only one web interface mode can be active at a time
+- Only one web interface can be active at a time
 
-## Revert back to defaults
+## Recovery & Reset
 
-If you decide to go back to default extended configuration,
-simply remove or rename `extended` folder in Fluidd/Mainsail.
+### Reset to Default Configuration
 
-## Recovery from Extended Configuration issue
+To restore default extended configuration, remove or rename the `extended` folder in Fluidd/Mainsail Configuration tab, then reboot.
 
-If you break Moonraker with an invalid configuration, the printer will not connect to WiFi on next boot.
+### Recovery from Configuration Issues
 
-To recover:
+If an invalid configuration breaks Moonraker (printer won't connect to WiFi):
 
-1. Create an empty file named `extended-recover.txt` on a USB stick
-2. Insert the USB stick into the printer
+1. Create an empty file named `extended-recover.txt` on a USB drive
+2. Insert the USB drive into the printer
 3. Restart the printer
-4. The extended configuration folder will be backed up to `extended.bak`
-5. The printer will start with a fresh configuration
-6. Remove the USB stick and the `extended-recover.txt` file will be automatically deleted
+4. The extended configuration will be backed up to `extended.bak` and reset to defaults
+5. Remove the USB drive (the recovery file will be automatically deleted)
 
 ## Related Documentation
 

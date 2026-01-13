@@ -32,12 +32,12 @@ This guide covers installing custom firmware on your Snapmaker U1 3D printer.
 
 ## Post-Installation
 
-After installation completes:
+After installation, the printer will automatically reboot.
 
-- The printer will automatically reboot
-- For SSH access, see [SSH Access documentation](ssh_access.md)
-- For camera features, see [Camera Support documentation](camera_support.md)
-- Fluidd interface will be available (Extended firmware only)
+**Next Steps:**
+- [SSH Access](ssh_access.md) - Access printer via SSH
+- [Extended Configuration](extended_config.md) - Customize firmware behavior (Extended only)
+- [Camera Support](camera_support.md) - Configure cameras (Extended only)
 
 ## Reverting to Stock Firmware
 

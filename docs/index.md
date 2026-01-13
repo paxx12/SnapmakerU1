@@ -16,44 +16,32 @@ Get the latest pre-built firmware from [Releases](https://github.com/paxx12/Snap
 For installation instructions, see [Installation Guide](install.md)
 and the [release notes](https://github.com/paxx12/SnapmakerU1/releases/latest).
 
-## Features
+## Features & Documentation
 
-### Basic Firmware
+### Getting Started
+
+- [Installation Guide](install.md) - How to install custom firmware on your Snapmaker U1
+- [Building from Source](development.md) - Development guide for building custom firmware
+
+### Core Features (Basic & Extended)
 
 - [SSH Access](ssh_access.md) - Remote shell access with `root/snapmaker` and `lava/snapmaker`
+- [Data Persistence](data_persistence.md) - Persistent storage configuration across firmware updates
 - USB Ethernet Adapters - Hot-plug support with automatic DHCP configuration
-- [Data Persistence](data_persistence.md) - Persistent storage across firmware updates
-- Enable fluidd automatically with camera feed.
+- Fluidd web interface with camera feed
 
-### Extended Firmware
-
-All basic firmware features plus:
+### Extended Firmware Features
 
 - [Extended Configuration](extended_config.md) - Customize firmware behavior via config file
-- [Camera Support](camera_support.md) - Hardware-accelerated camera stack with web-based controls and settings persistence
-- [USB Camera Support](camera_support.md) - Support for external USB cameras
+- [Camera Support](camera_support.md) - Hardware-accelerated camera stack for internal and USB cameras with web-based controls, WebRTC streaming, and optional RTSP support
 - [Klipper and Moonraker Custom Includes](klipper_includes.md) - Add custom configuration files via Fluidd/Mainsail
-- [RFID Filament Tag Support](rfid_support.md) - NTAG213/215/216 support for OpenPrintTag and OpenSpool formats
-- Moonraker Adaptive Mesh Support - Object processing for adaptive mesh features
-- Moonraker Apprise notifications - Send print notifications to Discord, Telegram, Slack, and 90+ services
-- WebRTC low-latency streaming
+- [RFID Filament Tag Support](rfid_support.md) - NTAG213/215/216 support for OpenSpool format
+- [Remote Screen](remote_screen.md) - View and control printer screen remotely via web browser
+- [Monitoring](monitoring.md) - Integration with Prometheus, Home Assistant, DataDog, and other monitoring systems
 - Fluidd or Mainsail (selectable) with timelapse plugin
-- [Remote Screen](remote_screen.md) - View printer screen remotely via web browser
-- [Monitoring](monitoring.md) - Local OpenMetrics exporter for monitoring systems
-- [Timelapse recovery tool](https://github.com/horzadome/snapmaker-u1-timelapse-recovery) - Recover unplayable timelapse videos
-
-## Documentation
-
-- [Installation Guide](install.md) - How to install custom firmware
-- [Building from Source](development.md) - Development guide for building custom firmware
-- [SSH Access](ssh_access.md) - How to access the printer via SSH
-- [Extended Configuration](extended_config.md) - Customize firmware behavior via config file
-- [Camera Support](camera_support.md) - Camera features and WebRTC streaming
-- [Klipper and Moonraker Custom Includes](klipper_includes.md) - Add custom configuration files
-- [RFID Filament Tag Support](rfid_support.md) - RFID filament tag usage and programming
-- [Data Persistence](data_persistence.md) - Persistent storage configuration
-- [Remote Screen](remote_screen.md) - Access printer screen remotely via web browser
-- [Monitoring](monitoring.md) - Prometheus, Homeassistant integration, Datadog, monitoring, etc.
+- Moonraker Adaptive Mesh Support - Object processing for adaptive mesh features
+- Moonraker Apprise Notifications - Send print notifications to Discord, Telegram, Slack, and 90+ services
+- [Timelapse Recovery Tool](https://github.com/horzadome/snapmaker-u1-timelapse-recovery) - Recover unplayable timelapse videos
 
 ## Support
 

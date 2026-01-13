@@ -4,6 +4,20 @@ title: Building from Source
 
 # Building from Source
 
+## Understanding Overlays
+
+The custom firmware uses an overlay system to modify the base Snapmaker firmware. Overlays are modular modifications that:
+
+- Add patches to modify existing firmware files
+- Copy additional files to the firmware root filesystem
+- Run build-time scripts to install components
+- Enable features without changing the base firmware source
+
+Each overlay is self-contained and numbered to control application order. This modular approach makes it easy to:
+- Enable/disable features by including/excluding overlays
+- Maintain different firmware profiles (basic vs extended)
+- Add custom modifications without conflicts
+
 ## Prerequisites
 
 ### Option 1: Docker (Recommended)
@@ -90,6 +104,14 @@ The build system supports two profiles:
 ## Overlays
 
 Overlays are organized into categories based on their scope and build profile. Each overlay is numbered to indicate its application order within its category.
+
+### Overlay Categories
+
+- **common/** - Core modifications applied to all firmware profiles (basic and extended)
+- **firmware-basic/** - Modifications specific to the basic firmware profile
+- **firmware-extended/** - Modifications specific to the extended firmware profile
+- **devel/** - Development tools and utilities (only included with DEVEL=1 flag)
+- **staging/** - Disabled overlays kept for potential future use
 
 ## Build Options
 

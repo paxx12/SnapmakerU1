@@ -6,26 +6,26 @@ title: Data Persistence
 
 **Available in: Basic and Extended firmware**
 
-By default the Snapmaker firmware wipes all user changes on every reboot.
-This makes it bulletproof.
+By default, Snapmaker firmware resets all system changes on reboot for stability.
 
-## Persisting System Changes
+## Enable System Persistence
 
-To persist system-level changes to `/etc` (e.g., SSH passwords or authorized keys), create the file with:
+To persist system-level changes to `/etc` (SSH passwords, authorized keys, etc.):
 
 ```bash
 touch /oem/.debug
 ```
 
-To restore a pristine system, remove the file and reboot:
+To restore pristine system state:
 
 ```bash
 rm /oem/.debug
+reboot
 ```
 
 ## Printer Data
 
-The `/home/lava/printer_data` directory persists with and without `/oem/.debug`.
+The `/home/lava/printer_data` directory always persists, regardless of `/oem/.debug`.
 
 ## ⚠️ Important Warning
 

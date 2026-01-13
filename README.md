@@ -12,7 +12,7 @@ Get the latest pre-built firmware from [Releases](https://github.com/paxx12/Snap
 
 ## Documentation
 
-See [User Documentation](docs/index.md) for features, installation instructions, and usage guides.
+See [User Documentation](https://snapmakeru1-extended-firmware.pages.dev/) for features, installation instructions, and usage guides.
 
 ## Dependent projects
 
