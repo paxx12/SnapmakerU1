@@ -58,6 +58,26 @@ After saving, reboot the printer.
 - `fluidd` (default) - Fluidd web interface
 - `mainsail` - Mainsail web interface
 
+### [remote_screen]
+
+**enabled** - Enable remote screen access at `http://<printer-ip>/screen/`
+- `true` - Enable remote screen viewing and touch control in web browser
+- `false` (default) - Remote screen access disabled
+
+Note: Requires additional Moonraker configuration. See [Remote Screen Access](remote_screen.md) for complete setup.
+
+### [monitoring]
+
+**klipper_exporter_enabled** - Enable Prometheus metrics exporter for Klipper
+- `true` - Enable metrics at `http://<printer-ip>:9101/metrics`
+- `false` (default) - Klipper exporter disabled
+
+**klipper_exporter_address** - Metrics exporter listen address
+- `:9101` (default) - Listen on all interfaces, port 9101
+- Custom format: `[host]:port` (e.g., `127.0.0.1:9101`, `:8080`)
+
+See [Monitoring](monitoring.md) for integration with Grafana, Home Assistant, or DataDog.
+
 ## Example Configuration
 
 ```ini
@@ -70,6 +90,13 @@ logs: syslog
 [web]
 frontend: fluidd
 # frontend: mainsail
+
+[remote_screen]
+# enabled: true
+
+[monitoring]
+# klipper_exporter_enabled: true
+# klipper_exporter_address: :9101
 ```
 
 ## Identifying Customized Settings
