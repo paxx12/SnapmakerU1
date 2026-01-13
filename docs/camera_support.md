@@ -37,6 +37,30 @@ settings for the best performance:
 
 <img src="images/usb_cam.png" alt="Fluidd USB camera" width="300"/>
 
+## Camera Controls
+
+**Note: Camera controls are only available with the paxx12 camera stack.**
+
+The paxx12 camera stack includes a web-based interface for adjusting camera settings in real-time.
+
+### Accessing Camera Controls
+
+Camera controls are accessible through the streaming HTTP interface:
+
+- Internal camera controls: `http://<printer-ip>/webcam/control`
+- USB camera controls: `http://<printer-ip>/webcam2/control`
+
+Available controls depend on your camera hardware capabilities.
+
+### Settings Persistence
+
+Camera settings are automatically persisted across reboots. Settings are stored in:
+
+- Internal camera: `/oem/printer_data/config/extended/camera/case.json`
+- USB camera: `/oem/printer_data/config/extended/camera/usb.json`
+
+To reset camera settings to defaults, delete the corresponding JSON file and reboot the printer.
+
 ## Switch to Snapmaker's Original Camera Stack
 
 By default, the extended firmware uses a custom hardware-accelerated camera stack (paxx12).
