@@ -9,14 +9,19 @@ Custom firmware for the Snapmaker U1 3D printer, enabling debug features like SS
 > **Warning**: Installing custom firmware may void warranty and could potentially damage your device.
 > Use at your own risk.
 
-## Download
+## Getting Started
+
+### Installation
 
 Get the latest pre-built firmware from [Releases](https://github.com/paxx12/SnapmakerU1/releases).
 
-For installation instructions, see [Installation Guide](install.md)
-and the [release notes](https://github.com/paxx12/SnapmakerU1/releases/latest).
+**📖 [Installation Guide](install.md)** - Step-by-step instructions for installing custom firmware
 
-For building custom firmware, see [Building from Source](development.md).
+See also: [Release notes](https://github.com/paxx12/SnapmakerU1/releases/latest)
+
+### Building from Source
+
+For developers who want to build custom firmware, see [Building from Source](development.md).
 
 ## Firmware Variants
 
