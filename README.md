@@ -20,8 +20,7 @@ See [Building from Source](docs/development.md) for instructions on building cus
 
 ## Dependent projects
 
-- [v4l2-mpp](https://github.com/paxx12/v4l2-mpp) - Custom project built to provide
-  Hardware-accelerated camera stack with V4L2 controls and settings persistence
+- [v4l2-mpp](https://github.com/paxx12/v4l2-mpp) - Hardware-accelerated camera stack with WebRTC streaming, V4L2 controls, and settings persistence
 
 ## Support
 

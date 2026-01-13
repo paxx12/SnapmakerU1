@@ -13,11 +13,11 @@ Custom firmware for the Snapmaker U1 3D printer, enabling debug features like SS
 
 ### Installation
 
-Get the latest pre-built firmware from [Releases](https://github.com/paxx12/SnapmakerU1/releases).
+Download the latest firmware from [Releases](https://github.com/paxx12/SnapmakerU1/releases).
 
-**📖 [Installation Guide](install.md)** - Step-by-step instructions for installing custom firmware
+**📖 [Installation Guide](install.md)** - Step-by-step installation instructions
 
-See also: [Release notes](https://github.com/paxx12/SnapmakerU1/releases/latest)
+[Release notes](https://github.com/paxx12/SnapmakerU1/releases/latest)
 
 ### Building from Source
 
@@ -27,17 +27,19 @@ For developers who want to build custom firmware, see [Building from Source](dev
 
 ### Basic Firmware
 
+Almost stock firmware with minimal changes for debugging and convenience:
+
 - [SSH Access](ssh_access.md) - Remote shell access with `root/snapmaker` and `lava/snapmaker`
 - [Data Persistence](data_persistence.md) - Persistent storage configuration across firmware updates
 - USB Ethernet Adapters - Hot-plug support with automatic DHCP configuration
-- Fluidd web interface with camera feed
+- Fluidd web interface with basic camera support
 
 ### Extended Firmware
 
-All basic firmware features plus:
+Heavily expanded firmware with extensive features and customization. Includes all basic features plus:
 
 - [Extended Configuration](extended_config.md) - Customize firmware behavior via config file
-- [Camera Support](camera_support.md) - Hardware-accelerated camera stack for internal and USB cameras with web-based controls
+- [Camera Support](camera_support.md) - Hardware-accelerated camera stack with WebRTC streaming for internal and USB cameras
 - [Klipper and Moonraker Custom Includes](klipper_includes.md) - Add custom configuration files via Fluidd/Mainsail
 - [RFID Filament Tag Support](rfid_support.md) - NTAG213/215/216 support for OpenSpool format
 - [Remote Screen](remote_screen.md) - View and control printer screen remotely via web browser

@@ -6,13 +6,13 @@ title: Camera Support
 
 **Available in: Extended firmware only**
 
-The extended firmware includes hardware-accelerated camera support.
+The extended firmware includes hardware-accelerated camera support with WebRTC streaming.
 
 ## Features
 
-- Hardware-accelerated camera stack (Rockchip MPP/VPU)
+- Hardware-accelerated camera stack (Rockchip MPP/VPU) with WebRTC streaming
 - MIPI CSI internal camera and USB camera support
-- WebRTC low-latency streaming
+- Low-latency WebRTC streaming (best quality and performance)
 - Hot-plug detection for USB cameras
 - Web-based camera controls with settings persistence
 - Optional RTSP streaming support
