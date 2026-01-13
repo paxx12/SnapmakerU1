@@ -17,7 +17,7 @@ See [User Documentation](docs/index.md) for features, installation instructions,
 ## Dependent projects
 
 - [v4l2-mpp](https://github.com/paxx12/v4l2-mpp) - Custom project built to provide
-  Hardware-accelerated camera stack
+  Hardware-accelerated camera stack with V4L2 controls and settings persistence
 
 ## Support
 
