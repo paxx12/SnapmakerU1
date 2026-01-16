@@ -92,7 +92,7 @@ To reset camera settings to defaults, delete the corresponding JSON file and reb
 
 ## Configuration
 
-All camera configuration is done through `/home/lava/printer_data/config/extended/extended.cfg`. See [Extended Configuration](extended_config.md) for editing instructions.
+All camera configuration is done through `/home/lava/printer_data/config/extended/extended.cfg`. See [Firmware Configuration](firmware_config.md) for editing instructions.
 
 ### Camera Stack Selection
 

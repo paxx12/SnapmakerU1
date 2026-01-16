@@ -1,24 +1,96 @@
 ---
-title: Extended Configuration
+title: Firmware Configuration
 ---
 
-# Extended Configuration
+# Firmware Configuration
 
 **Available in: Extended firmware**
 
-The extended configuration file `/home/lava/printer_data/config/extended/extended.cfg` allows you to customize firmware behavior.
+The extended firmware provides two ways to configure firmware behavior:
 
-## Configuration File Location
+1. **Firmware Config Web Interface** - A web-based tool for managing settings, firmware upgrades, and troubleshooting
+2. **extended.cfg** - A configuration file for customizing firmware behavior
+
+## Firmware Config Web Interface
+
+Access the Firmware Config tool at `http://<printer-ip>/firmware-config/`
+
+**Note:** The Firmware Config interface is only available when Advanced Mode is enabled. On the printer touchscreen, go to **Settings > Maintenance > Advanced Mode** and enable it, then restart the printer.
+
+### Status
+
+Displays system information including:
+- Base firmware version
+- Build version and profile
+- Active firmware slot (A/B)
+- Device name
+
+### Quick Links
+
+Dynamic links based on current settings:
+- **Web Interface** - Opens Fluidd/Mainsail
+- **Internal Camera** - Camera stream (when paxx12 stack is enabled)
+- **USB Camera** - USB camera stream (when enabled)
+- **Remote Screen** - Remote screen access (when enabled)
+
+### Settings
+
+Toggle settings directly from the web interface:
+
+| Setting | Options | Description |
+|---------|---------|-------------|
+| Web Frontend | Fluidd, Mainsail | Switch between web interfaces |
+| Camera Stack | Paxx12, Snapmaker | Select camera service |
+| Camera RTSP Stream | Enabled, Disabled | Enable RTSP streaming |
+| USB Camera | Enabled, Disabled | Enable USB camera support |
+| Remote Screen | Enabled, Disabled | Enable remote screen access |
+| Klipper Metrics Exporter | Enabled, Disabled | Enable Prometheus metrics |
+| Data Persistence | Enabled, Disabled | Persist configuration across reboots |
+
+Changes are applied immediately and relevant services are restarted.
+
+### Troubleshooting
+
+Available actions:
+- **Show MCUs Version** - Display microcontroller firmware versions
+- **Collect System Logs** - Generate and download system logs for debugging
+- **Restart Klipper** - Restart the Klipper service
+- **Restart Moonraker** - Restart the Moonraker service
+- **Reboot System** - Reboot the printer
+- **Revert Changes** - Remove configuration changes and disable data persistence
+- **Recover to Backup Firmware** - Restore previous firmware version
+
+### Firmware Upgrade
+
+Upgrade firmware using one of two methods:
+
+**Download from URL:**
+1. Enter a firmware URL
+2. Click "Download & Upgrade"
+3. The system downloads and installs the firmware
+
+**Upload File:**
+1. Select or drag-and-drop a firmware file
+2. Click "Upload & Upgrade"
+3. The file is uploaded and installed
+
+The system reboots automatically after a successful upgrade.
+
+## Configuration File (extended.cfg)
+
+For advanced configuration, edit the configuration file directly.
+
+### File Location
 
 ```
 /home/lava/printer_data/config/extended/extended.cfg
 ```
 
-## Editing the Configuration File
+### Editing the Configuration File
 
 The `extended.cfg` file is automatically created by the firmware.
 
-### Via Fluidd/Mainsail
+#### Via Fluidd/Mainsail
 
 1. On the printer, go to **Settings > Maintenance > Advanced Mode** and enable it
 2. Open Fluidd or Mainsail in your web browser (`http://<printer-ip>`)
@@ -28,7 +100,7 @@ The `extended.cfg` file is automatically created by the firmware.
 6. Save the file
 7. Reboot the printer
 
-### Via SSH
+#### Via SSH
 
 ```bash
 ssh lava@<printer-ip>
@@ -37,9 +109,15 @@ vi /home/lava/printer_data/config/extended/extended.cfg
 
 After saving, reboot the printer.
 
-## Configuration Options
+### Configuration Options
 
-### [camera]
+#### [firmware_config]
+
+**enabled** - Enable or disable the Firmware Config web interface
+- `true` (default) - Firmware Config available at `/firmware-config/` when Advanced Mode is enabled
+- `false` - Firmware Config disabled even when Advanced Mode is enabled
+
+#### [camera]
 
 **stack** - Camera stack selection (only one can be active)
 - `paxx12` (default) - Hardware-accelerated v4l2-mpp camera stack with WebRTC and timelapse
@@ -52,13 +130,13 @@ After saving, reboot the printer.
 - `true` - Enable RTSP streaming at `rtsp://<printer-ip>:8554/stream` (internal) and `rtsp://<printer-ip>:8555/stream` (USB)
 - `false` (default) - RTSP streaming disabled
 
-### [web]
+#### [web]
 
 **frontend** - Web interface selection (only one can be active)
 - `fluidd` (default) - Fluidd web interface
 - `mainsail` - Mainsail web interface
 
-### [remote_screen]
+#### [remote_screen]
 
 **enabled** - Enable remote screen access at `http://<printer-ip>/screen/`
 - `true` - Enable remote screen viewing and touch control in web browser
@@ -66,7 +144,7 @@ After saving, reboot the printer.
 
 Note: Requires additional Moonraker configuration. See [Remote Screen Access](remote_screen.md) for complete setup.
 
-### [monitoring]
+#### [monitoring]
 
 **klipper_exporter_enabled** - Enable Prometheus metrics exporter for Klipper
 - `true` - Enable metrics at `http://<printer-ip>:9101/metrics`
@@ -78,9 +156,13 @@ Note: Requires additional Moonraker configuration. See [Remote Screen Access](re
 
 See [Monitoring](monitoring.md) for integration with Grafana, Home Assistant, or DataDog.
 
-## Example Configuration
+### Example Configuration
 
 ```ini
+[firmware_config]
+# enabled: true
+# enabled: false
+
 [camera]
 stack: paxx12
 # stack: snapmaker
@@ -99,7 +181,7 @@ frontend: fluidd
 # klipper_exporter_address: :9101
 ```
 
-## Identifying Customized Settings
+### Identifying Customized Settings
 
 When you modify a configuration file, the system automatically creates a `.default` file alongside it containing the original default values. For example, if you customize `extended.cfg`, you'll find `extended.cfg.default` in the same directory.
 
@@ -117,6 +199,7 @@ The `.default` files are updated on each boot to reflect the current firmware de
 - Lines starting with `#` are comments and ignored
 - Only one camera stack can be active at a time
 - Only one web interface can be active at a time
+- Changes made via the Firmware Config web interface are written to `extended.cfg`
 
 ## Recovery & Reset
 
