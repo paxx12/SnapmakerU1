@@ -1,0 +1,3 @@
+# This directory is git-ignored
+# Place your SSH public key(s) here (e.g., id_rsa.pub, id_ed25519.pub)
+# They will be installed to /home/lava/.ssh/authorized_keys during firmware build
