@@ -31,7 +31,7 @@ enabled: true
 
 **Step 2:** Edit `extended/moonraker/04_remote_screen.cfg`, locate the setting below and set it to true:
 ```ini
-[webcam_gui]
+[webcam gui]
 enabled: true
 ```
 
