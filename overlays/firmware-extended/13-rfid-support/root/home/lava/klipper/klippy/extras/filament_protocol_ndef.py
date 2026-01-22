@@ -220,6 +220,9 @@ def openspool_parse_payload(payload):
         info['OFFICIAL'] = True
         info['CARD_UID'] = []
 
+        # Extract spool_id for Spoolman integration (optional field)
+        info['SPOOL_ID'] = data.get('spool_id', None)
+
         return filament_protocol.FILAMENT_PROTO_OK, info
 
     except json.JSONDecodeError as e:

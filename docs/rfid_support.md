@@ -102,6 +102,7 @@ Using the non-standard OpenSpool `subtype` field it is possible to specify a mat
 - `additional_color_hexes` - Additional colors for multicolor spools (up to 4)
 - `weight` - Spool weight in grams
 - `diameter` - Filament diameter in mm (e.g., 1.75)
+- `spool_id` - Spoolman spool ID for automatic spool tracking (see [Spoolman Integration](#spoolman-integration))
 
 ### Snapmaker Orca Naming Convention
 
@@ -135,3 +136,75 @@ Use the **NFC Tools** app (iOS/Android) to inspect tags:
 **NTAG tags only work on extended firmware:**
 - Basic and original firmware only support Mifare Classic 1K with Snapmaker proprietary format
 - Extended firmware adds NTAG215/216 support
+
+## Spoolman Integration
+
+[Spoolman](https://github.com/Donkie/Spoolman) is a self-hosted filament inventory management system. When combined with NFC tags, you can automatically track which spool is loaded in each extruder.
+
+### How It Works
+
+1. Include `spool_id` in your OpenSpool NFC tag payload
+2. When the tag is read, the firmware calls the `ON_NFC_SPOOL_READ` macro
+3. Your macro updates Spoolman with the active spool
+
+### Tag Format
+
+Add the `spool_id` field to your OpenSpool payload:
+
+```json
+{
+  "protocol": "openspool",
+  "version": "1.0",
+  "brand": "Elegoo",
+  "type": "PLA",
+  "color_hex": "#FF5733",
+  "min_temp": 200,
+  "max_temp": 220,
+  "spool_id": 42
+}
+```
+
+The `spool_id` should match the spool ID in your Spoolman database.
+
+### Example Macro
+
+Create `extended/klipper/nfc_spoolman.cfg`:
+
+```cfg
+# NFC Tag → Spoolman Integration
+# Automatically called when an NFC tag with spool_id is read
+# Parameters: CHANNEL (0-3 = T0-T3), SPOOL_ID (integer)
+
+[gcode_macro ON_NFC_SPOOL_READ]
+description: Called when NFC tag with spool_id is read
+gcode:
+    {% set channel = params.CHANNEL|int %}
+    {% set spool_id = params.SPOOL_ID|int %}
+    {% set tool = "T" ~ channel %}
+
+    # Update tool's spool assignment
+    SET_GCODE_VARIABLE MACRO={tool} VARIABLE=spool_id VALUE={spool_id}
+
+    # Optional: Trigger deferred spool save
+    UPDATE_DELAYED_GCODE ID=SAVE_SELECTED_SPOOLS DURATION=1
+
+    RESPOND PREFIX="NFC" MSG="Spool {spool_id} assigned to {tool}"
+```
+
+### Generating Tags from Spoolman
+
+If you have Spoolman running, you can generate the tag payload directly:
+
+```bash
+SPOOL_ID=42  # Your spool ID
+curl -s "http://spoolman:7912/api/v1/spool/$SPOOL_ID" | jq '{
+  protocol: "openspool",
+  version: "1.0",
+  type: .filament.material,
+  brand: .filament.vendor.name,
+  color_hex: ("#" + .filament.color_hex),
+  spool_id: .id
+}'
+```
+
+Write this JSON to an NTAG215 tag using any NFC app that supports NDEF with MIME type `application/json`.
