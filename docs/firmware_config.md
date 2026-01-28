@@ -40,6 +40,7 @@ Toggle settings directly from the web interface:
 | Setting | Options | Description |
 |---------|---------|-------------|
 | Web Frontend | Fluidd, Mainsail | Switch between web interfaces |
+| Require Login/Password (Fluidd only) | Enabled, Disabled | Require login for Moonraker API access |
 | Camera Stack | Paxx12, Snapmaker | Select camera service |
 | Camera RTSP Stream | Enabled, Disabled | Enable RTSP streaming |
 | USB Camera | Enabled, Disabled | Enable USB camera support |
@@ -117,6 +118,19 @@ After saving, reboot the printer.
 **enabled** - Enable or disable the Firmware Config web interface
 - `true` (default) - Firmware Config available at `/firmware-config/` when Advanced Mode is enabled
 - `false` - Firmware Config disabled even when Advanced Mode is enabled
+
+#### [moonraker]
+
+**force_logins** - Require authentication for Moonraker API access
+- `true` - Require login even for trusted clients (LAN). When enabled for the first time, an admin account is automatically created with a random password. **Save this password!**
+- `false` (default) - Allow unauthenticated access from trusted clients
+
+When `force_logins` is enabled:
+- Users must log in to Fluidd/Mainsail to access the printer
+- The Firmware Config web interface requires authentication
+- Remote access via VPN is secured with user credentials
+
+See [Password Recovery](#password-recovery) if you forget your credentials.
 
 #### [vpn]
 
@@ -224,6 +238,19 @@ The `.default` files are updated on each boot to reflect the current firmware de
 
 To restore default extended configuration, remove or rename the `extended` folder in Fluidd/Mainsail Configuration tab, then reboot.
 
+### Password Recovery
+
+If you forget your Moonraker admin password when Require Login/Password (Fluidd only) is enabled:
+
+1. Create an empty file named `extended-recover.txt` on a USB drive
+2. Insert the USB drive into the printer
+3. Restart the printer
+4. The extended configuration (including authentication settings) will be backed up and reset
+5. Remove the USB drive
+6. Re-enable Require Login/Password (Fluidd only) in Firmware Config to generate a new admin password
+
+**Important:** The `extended-recover.txt` method resets ALL extended configuration, not just authentication. Your other settings (camera, VPN, etc.) will also be reset to defaults.
+
 ### Recovery from Configuration Issues
 
 If an invalid configuration breaks Moonraker (printer won't connect to WiFi):
@@ -231,7 +258,7 @@ If an invalid configuration breaks Moonraker (printer won't connect to WiFi):
 1. Create an empty file named `extended-recover.txt` on a USB drive
 2. Insert the USB drive into the printer
 3. Restart the printer
-4. The extended configuration will be backed up to `extended.bak` and reset to defaults
+4. The extended configuration will be backed up to `extended.backup.N` and reset to defaults
 5. Remove the USB drive (the recovery file will be automatically deleted)
 
 ## Related Documentation
