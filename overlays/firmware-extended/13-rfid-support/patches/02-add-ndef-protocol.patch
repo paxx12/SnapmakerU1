@@ -7,8 +7,8 @@ diff -uNr rootfs.original/home/lava/klipper/klippy/extras/filament_detect.py roo
 +from . import filament_protocol_ndef
  from . import fm175xx_reader
  from . import filament_feed
- 
-@@ -124,6 +125,14 @@
+
+@@ -124,6 +125,22 @@
                      filament_info = info
                  else:
                      logging.error("channel[%d] m1 parse err: %d", channel, error)
@@ -18,6 +18,15 @@ diff -uNr rootfs.original/home/lava/klipper/klippy/extras/filament_detect.py roo
 +                if (error == filament_protocol.FILAMENT_PROTO_OK):
 +                    logging.info("channel[%d] NDEF parse ok....", channel)
 +                    filament_info = info
++                    # Call macro if spool_id present in NFC tag (for Spoolman integration)
++                    spool_id = info.get('SPOOL_ID')
++                    if spool_id is not None:
++                        try:
++                            gcode = self.printer.lookup_object('gcode')
++                            gcode.run_script_from_command(
++                                f"ON_NFC_SPOOL_READ CHANNEL={channel} SPOOL_ID={spool_id}")
++                        except Exception as e:
++                            logging.warning(f"Failed to run ON_NFC_SPOOL_READ: {e}")
 +                else:
 +                    logging.error("channel[%d] NDEF parse err....", channel)
          else:
