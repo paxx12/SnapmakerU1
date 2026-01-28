@@ -71,11 +71,18 @@
         @keyframes indeterminate { 0% { transform: translateX(-100%); } 100% { transform: translateX(400%); } }
         .progress-info { display: none; color: #aaa; font-size: 12px; margin-bottom: 12px; justify-content: space-between; }
         .progress-info.visible { display: flex; }
+        .auth-notice { display: none; background: var(--warning); color: #000; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; }
+        .auth-notice.visible { display: block; }
+        .auth-notice a { color: #000; font-weight: 600; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Firmware Config <button class="btn btn-primary" onclick="refreshAll()">&#x21bb; Refresh</button></h1>
+
+        <div id="auth-notice" class="auth-notice">
+            Authentication required. Please <a href="/">log in to Fluidd</a> first, then return to this page.
+        </div>
 
         <div id="status-container"></div>
 
@@ -140,6 +147,37 @@
         // Helper function to get element by ID
         const $ = id => document.getElementById(id);
 
+        // Auth functions for Moonraker/Fluidd token
+        function getJWT() {
+            const instanceKey = `user-token-${window.location.host.replace(/[^a-zA-Z0-9]/g, '_')}`;
+            let token = localStorage.getItem(instanceKey);
+            if (token) return token;
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith('user-token-')) {
+                    token = localStorage.getItem(key);
+                    if (token) return token;
+                }
+            }
+            return null;
+        }
+
+        function getAuthHeaders() {
+            const jwt = getJWT();
+            return jwt ? { 'Authorization': `Bearer ${jwt}` } : {};
+        }
+
+        async function authFetch(url, options = {}) {
+            options.headers = { ...getAuthHeaders(), ...options.headers };
+            const resp = await fetch(url, options);
+            if (resp.status === 401) {
+                $('auth-notice').classList.add('visible');
+                throw new Error('Authentication required');
+            }
+            $('auth-notice').classList.remove('visible');
+            return resp;
+        }
+
         // Global state
         let selectedFile = null;
         let actionsData = [];
@@ -152,7 +190,7 @@
         async function loadStatus() {
             const container = $('status-container');
             try {
-                const status = await (await fetch('api/status')).json();
+                const status = await (await authFetch('api/status')).json();
 
                 const sectionsHtml = Object.entries(status).map(([key, section]) => {
                     const itemsHtml = section.items.map(item =>
@@ -169,14 +207,14 @@
                     <div class="info-grid">${sectionsHtml}</div>
                 </div>`;
             } catch (e) {
-                container.innerHTML = '<div class="card"><div class="loading" style="color:var(--error)">Failed to load status</div></div>';
+                container.innerHTML = e.message === 'Authentication required' ? '' : '<div class="card"><div class="loading" style="color:var(--error)">Failed to load status</div></div>';
             }
         }
 
         async function loadLinks() {
             const container = $('links-container');
             try {
-                const links = await (await fetch('api/links')).json();
+                const links = await (await authFetch('api/links')).json();
 
                 container.innerHTML = links.map(link =>
                     `<a class="link-item" href="${link.url}" target="_blank">
@@ -185,14 +223,14 @@
                     </a>`
                 ).join('');
             } catch (e) {
-                container.innerHTML = `<div class="loading" style="color:var(--error)">Error: ${e.message}</div>`;
+                container.innerHTML = e.message === 'Authentication required' ? '<div class="loading">Login required</div>' : `<div class="loading" style="color:var(--error)">Error: ${e.message}</div>`;
             }
         }
 
         async function loadActions() {
             const container = $('actions-container');
             try {
-                const grouped = await (await fetch('api/actions')).json();
+                const grouped = await (await authFetch('api/actions')).json();
                 actionsData = Object.values(grouped).flatMap(g => g.items);
 
                 container.innerHTML = Object.entries(grouped).map(([_, group]) =>
@@ -207,7 +245,7 @@
                     </div>`
                 ).join('');
             } catch (e) {
-                container.innerHTML = `<div class="loading" style="color:var(--error)">Error: ${e.message}</div>`;
+                container.innerHTML = e.message === 'Authentication required' ? '<div class="loading">Login required</div>' : `<div class="loading" style="color:var(--error)">Error: ${e.message}</div>`;
             }
         }
 
@@ -215,7 +253,7 @@
             const container = $('settings-container');
             const card = container.closest('.card');
             try {
-                const grouped = await (await fetch('api/settings')).json();
+                const grouped = await (await authFetch('api/settings')).json();
                 const groups = Object.entries(grouped);
 
                 if (groups.length === 0) {
@@ -228,18 +266,18 @@
                     `<div class="group-section">
                         <div class="group-title">${group.label}</div>
                         ${group.items.map(setting => {
-                            const options = Object.entries(setting.options).map(([optKey, optLabel]) =>
-                                `<option value="${optKey}"${optKey === setting.current ? ' selected' : ''}>${optLabel}</option>`
-                            ).join('');
+                            const options = Object.entries(setting.options).map(([optKey, optVal]) => {
+                                return `<option value="${optKey}" data-label="${encodeURIComponent(optVal.label)}" data-confirm="${encodeURIComponent(optVal.confirm || '')}"${optKey === setting.current ? ' selected' : ''}>${optVal.label}</option>`;
+                            }).join('');
                             return `<div class="row">
                                 <span class="row-label">${setting.label}</span>
-                                <select onchange="updateSetting('${setting.id}', '${setting.label}', this.value)">${options}</select>
+                                <select data-prev-value="${setting.current}" onchange="updateSetting('${setting.id}', '${setting.label}', this)">${options}</select>
                             </div>`;
                         }).join('')}
                     </div>`
                 ).join('');
             } catch (e) {
-                container.innerHTML = `<div class="loading" style="color:var(--error)">Error: ${e.message}</div>`;
+                container.innerHTML = e.message === 'Authentication required' ? '<div class="loading">Login required</div>' : `<div class="loading" style="color:var(--error)">Error: ${e.message}</div>`;
             }
         }
 
@@ -294,15 +332,22 @@
         // Modal Functions
         // ========================================
 
-        function showConfirmModal(title, message, onConfirm) {
+        let confirmOnCancel = null;
+
+        function showConfirmModal(title, message, onConfirm, onCancel) {
             $('confirm-title').textContent = title;
             $('confirm-message').textContent = message;
             $('confirm-btn').onclick = () => { hideConfirmModal(); onConfirm(); };
+            confirmOnCancel = onCancel || null;
             $('confirm-modal').classList.add('visible');
         }
 
         function hideConfirmModal() {
             $('confirm-modal').classList.remove('visible');
+            if (confirmOnCancel) {
+                confirmOnCancel();
+                confirmOnCancel = null;
+            }
         }
 
         function showActionModal(title, message) {
@@ -363,7 +408,7 @@
             $('action-log').classList.add('visible');
 
             try {
-                const resp = await fetch('api/upgrade/url', {
+                const resp = await authFetch('api/upgrade/url', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ url })
@@ -409,6 +454,8 @@
             const startTime = performance.now();
 
             xhr.open('POST', 'api/upgrade/upload');
+            const jwt = getJWT();
+            if (jwt) xhr.setRequestHeader('Authorization', `Bearer ${jwt}`);
 
             xhr.upload.onprogress = (e) => {
                 if (e.lengthComputable) {
@@ -499,7 +546,7 @@
 
         async function execAction(id) {
             try {
-                const resp = await fetch(`api/action/${id}`, { method: 'POST' });
+                const resp = await authFetch(`api/action/${id}`, { method: 'POST' });
                 await streamResponse(resp, id);
             } catch (e) {
                 appendLog(`\nERROR: ${e.message}`);
@@ -550,10 +597,21 @@
         // Settings Functions
         // ========================================
 
-        function updateSetting(key, label, value) {
-            const message = `Change ${label} to "${value}"?\n\n⚠️ Warning: Changing settings will restart services and may interrupt printing.`;
+        function updateSetting(key, label, selectEl) {
+            const value = selectEl.value;
+            const prevValue = selectEl.dataset.prevValue || value;
+            const selectedOption = selectEl.selectedOptions[0];
+            const optLabel = decodeURIComponent(selectedOption.dataset.label || value);
+            const confirmMsg = decodeURIComponent(selectedOption.dataset.confirm || '');
 
-            showConfirmModal(`Update ${label}`, message, () => doUpdateSetting(key, value));
+            const message = confirmMsg || `Change ${label} to "${optLabel}"?\n\n⚠️ Warning: Changing settings will restart services and may interrupt printing.`;
+
+            showConfirmModal(
+                `Update ${label}`,
+                message,
+                () => { selectEl.dataset.prevValue = value; doUpdateSetting(key, value); },
+                () => { selectEl.value = prevValue; }
+            );
         }
 
         async function doUpdateSetting(key, value) {
@@ -561,7 +619,7 @@
             $('action-log').classList.add('visible');
 
             try {
-                const resp = await fetch(`api/settings/${key}/${value}`, { method: 'POST' });
+                const resp = await authFetch(`api/settings/${key}/${value}`, { method: 'POST' });
                 await streamResponse(resp);
                 refreshAll();
             } catch (e) {
@@ -578,7 +636,7 @@
             if (!currentAction) return;
 
             try {
-                const resp = await fetch(`api/action/${currentAction}/download`, { method: 'POST' });
+                const resp = await authFetch(`api/action/${currentAction}/download`, { method: 'POST' });
                 if (!resp.ok) throw new Error(resp.statusText);
 
                 const blob = await resp.blob();
