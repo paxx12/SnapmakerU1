@@ -6,3 +6,6 @@ tools/rk2918_tools/img_maker
 tools/rk2918_tools/img_unpack
 tools/rk2918_tools/mkkrnlimg
 _site/
+
+# Local SSH keys (personal, not committed)
+overlays/common/04-ssh-authorized-keys/local-keys/*.pub
