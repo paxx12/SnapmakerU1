@@ -1,0 +1,31 @@
+settings:
+  monitoring_debugging:
+    label: Monitoring & Debugging
+    items:
+      klipper-metrics:
+        label: Klipper Metrics Exporter
+        get_cmd:
+          - /usr/local/bin/extended-config.py
+          - get
+          - /home/lava/printer_data/config/extended/extended.cfg
+          - monitoring
+          - klipper_exporter_enabled
+          - "false"
+        options:
+          "true":
+            label: Enabled
+            cmd:
+              - bash
+              - -xc
+              - |
+                /usr/local/bin/extended-config.py add /home/lava/printer_data/config/extended/extended.cfg monitoring klipper_exporter_enabled true &&
+                /etc/init.d/S99prometheus-klipper-exporter restart
+          "false":
+            label: Disabled
+            cmd:
+              - bash
+              - -xc
+              - |
+                /usr/local/bin/extended-config.py add /home/lava/printer_data/config/extended/extended.cfg monitoring klipper_exporter_enabled false &&
+                /etc/init.d/S99prometheus-klipper-exporter stop
+        default: "false"
