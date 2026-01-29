@@ -251,6 +251,8 @@ def ndef_proto_data_parse(data_buf):
                 logging.error(f"OpenSpool parse failed: Payload parsing error (code: {error_code})")
                 continue
             else:
+                # log the info for debugging
+                logging.debug(f"OpenSpool parsed info: {info}")
                 logging.info(f"OpenSpool parse success: vendor={info.get('VENDOR')}, type={info.get('MAIN_TYPE')}")
                 return error_code, info
 
